@@ -1,5 +1,6 @@
 import cv2
 import cv2.cv as cv
+import numpy as np
 
 cap = cv2.VideoCapture(0)
 cas = cv2.CascadeClassifier('/usr/share/opencv/haarcascades/haarcascade_eye.xml')
