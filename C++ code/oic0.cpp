@@ -13,10 +13,10 @@ void CannyThreshold(Mat src_gray, Mat& edge_gray, int lowThreshold, int highThre
 	Canny( edge_gray, edge_gray, lowThreshold, highThreshold, kernel_size );
 }
 
-void showImages(int l, int h, vector<Mat> imgs) {
+void showImages(int e ,int l, int h, vector<Mat> imgs) {
 	for(int i=l;i<=h;i++) {
 		char str[2];
-		str[0] = (char)(i+49);
+		str[0] = (char)(i+49+e);
 		str[1] = '\0';
 		imshow(str, imgs[i]);
 	}
@@ -88,14 +88,14 @@ int main(int argc, char** argv) {
 	
 	vector<Rect> eyes;
     eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-    cout<<"no  detected "<<eyes.size()<<endl;
+    cout<<"no. detected "<<eyes.size()<<endl;
 
  	// Draw the detected eyes
     for( int e= 0;  e< eyes.size(); e++ )
     {
     	
-    	cout<<"loop"<<eyes[e].x<<" "<<eyes[e].y;
-    	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
+    	cout<<"region "<<e<<" "<<eyes[e].x<<" "<<eyes[e].y<<endl;
+    	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 2, 8, 0);
     	Mat roi (img_gray, eyes[e] );
      	
 
@@ -139,7 +139,7 @@ int main(int argc, char** argv) {
 	 		
 	 	}
 
-	 	showImages(0,rois.size(),rois);
+	 	showImages(e,0,2,rois);
 
 
 	 }
