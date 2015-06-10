@@ -16,8 +16,9 @@ void CannyThreshold(Mat src_gray, Mat& edge_gray, int lowThreshold, int highThre
 void showImages(int e ,int l, int h, vector<Mat> imgs) {
 	for(int i=l;i<=h;i++) {
 		char str[2];
-		str[0] = (char)(i+49+e);
+		str[0] = (char)(i+49+e*(e+2));
 		str[1] = '\0';
+		//cout<<endl<<str;
 		imshow(str, imgs[i]);
 	}
 }
