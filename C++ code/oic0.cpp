@@ -88,7 +88,7 @@ int main(int argc, char** argv) {
 	
 	vector<Rect> eyes;
     eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-    cout<<eyes.size()<<endl;
+    cout<<"no  detected "<<eyes.size()<<endl;
 
  	// Draw the detected eyes
     for( int e= 0;  e< eyes.size(); e++ )
