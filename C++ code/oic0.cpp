@@ -91,7 +91,7 @@ int main(int argc, char** argv) {
     std::vector<Rect> eyes;
     eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
     cout<<eyes.size()<<endl;
-    
+
  	Mat roi_lapl,roi_edges;
     
     // Draw the detected faces
@@ -101,13 +101,13 @@ int main(int argc, char** argv) {
     	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
     	Mat roi (img_gray, eyes[e] );
      	
-
+//roi laplacian
      	Laplacian(roi,rois[0], CV_8UC1, 3);
 		
-
+//roi canny edge
 		CannyThreshold(roi, rois[1], lowThreshold, lowThreshold*ratio, kernel_size);
 		
-
+//roi Harris corner
 		Mat dst, dst_norm, dst_norm_scaled;
   		dst = Mat::zeros( roi.size(), CV_32FC1 );
 
