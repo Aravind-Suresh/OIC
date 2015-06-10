@@ -46,11 +46,11 @@ int main(int argc, char** argv) {
 	 *	1 - + canny
 	 *	2 - + laplacian
 	 *	3 - 
-	 *	4 - + hull defect points
-	 *	5 - + hull start points
-	 *	6 - + hull end points
-	 *	7 - defect points min enclosing circle
-	 *	8 - minenclosing circle AND canny
+	 *	4 - 
+	 *	5 - 
+	 *	6 - 
+	 *	7 - 
+	 *	8 - 
 	 *	9 - 
 	 *
 	 *
@@ -85,11 +85,10 @@ int main(int argc, char** argv) {
 
 // Load eyes cascade (.xml file)
     CascadeClassifier eye_cascade;
-    eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
- 
-    // Detect eyes
-    std::vector<Rect> eyes;
-    eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
+    eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eye.xml" );
+	
+	vector<Rect> eyes;
+    eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
     cout<<eyes.size()<<endl;
 
  	Mat roi_lapl,roi_edges;
