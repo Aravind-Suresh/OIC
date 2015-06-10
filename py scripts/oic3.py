@@ -1,5 +1,5 @@
 import cv2
-<<<<<<< HEAD
+
     ...: import numpy as np
     ...: import cv2.cv as cv
     ...: 
@@ -42,7 +42,8 @@ import cv2
     ...:         break
     ...: 
     ...: cap.release()
-=======
+
+
 import cv2.cv as cv
 import numpy as np
 
@@ -82,4 +83,3 @@ while(1):
 		break
 
 cap.release()
->>>>>>> 7cf7881058451e1a85b520089fca955bf824153a

@@ -90,12 +90,14 @@ int main(int argc, char** argv) {
     // Detect faces
     std::vector<Rect> eyes;
     eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
-
+    cout<<eyes.size()<<endl;
+    
  	Mat roi_lapl,roi_edges;
     
     // Draw the detected faces
     for( int e= 0;  e< eyes.size(); e++ )
     {
+    	cout<<eyes[e].x<<" "<<eyes[e].y;
     	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
     	Mat roi (img_gray, eyes[e] );
      	
