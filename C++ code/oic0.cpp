@@ -83,11 +83,11 @@ int main(int argc, char** argv) {
 
 
 
-// Load Face cascade (.xml file)
+// Load eyes cascade (.xml file)
     CascadeClassifier eye_cascade;
     eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
  
-    // Detect faces
+    // Detect eyes
     std::vector<Rect> eyes;
     eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
     cout<<eyes.size()<<endl;
