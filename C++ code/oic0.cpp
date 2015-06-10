@@ -60,7 +60,7 @@ int main(int argc, char** argv) {
 	 for(int i=0;i<imgs.size();i++) {
 	 	img_gray.copyTo(imgs[i]);
 	 }
-	vector<Mat> rois(25);
+	 vector<Mat> rois(25);
 	/*
 	 *	0 - +laplacian
 	 *	1 - +canny
@@ -84,70 +84,70 @@ int main(int argc, char** argv) {
 
 
 // Load eyes cascade (.xml file)
-    CascadeClassifier eye_cascade;
-    eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
- 
+	 CascadeClassifier eye_cascade;
+	 eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
+	 
     // Detect eyes
-    std::vector<Rect> eyes;
-    eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
-    cout<<eyes.size()<<endl;
+	 std::vector<Rect> eyes;
+	 eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
+	 cout<<eyes.size()<<endl;
 
- 	Mat roi_lapl,roi_edges;
-    
+	 Mat roi_lapl,roi_edges;
+	 
     // Draw the detected faces
-    for( int e= 0;  e< eyes.size(); e++ )
-    {
-    	cout<<eyes[e].x<<" "<<eyes[e].y;
-    	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
-    	Mat roi (img_gray, eyes[e] );
-     	
+	 for( int e= 0;  e< eyes.size(); e++ )
+	 {
+	 	cout<<eyes[e].x<<" "<<eyes[e].y;
+	 	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
+	 	Mat roi (img_gray, eyes[e] );
+	 	
 //roi laplacian
-     	Laplacian(roi,rois[0], CV_8UC1, 3);
-		
+	 	Laplacian(roi,rois[0], CV_8UC1, 3);
+	 	
 //roi canny edge
-		CannyThreshold(roi, rois[1], lowThreshold, lowThreshold*ratio, kernel_size);
-		
+	 	CannyThreshold(roi, rois[1], lowThreshold, lowThreshold*ratio, kernel_size);
+	 	
 //roi Harris corner
-		Mat dst, dst_norm, dst_norm_scaled;
-  		dst = Mat::zeros( roi.size(), CV_32FC1 );
+	 	Mat dst, dst_norm, dst_norm_scaled;
+	 	dst = Mat::zeros( roi.size(), CV_32FC1 );
 
   		/// Detector parameters
-  		int blockSize = 2;
-  		int apertureSize = 3;
- 	 	double k = 0.04;
+	 	int blockSize = 2;
+	 	int apertureSize = 3;
+	 	double k = 0.04;
 
   		/// Detecting corners
- 		 cornerHarris( roi, dst, blockSize, apertureSize, k, BORDER_DEFAULT );
+	 	cornerHarris( roi, dst, blockSize, apertureSize, k, BORDER_DEFAULT );
 
 		/// Normalizing
-		normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
-		convertScaleAbs( dst_norm, dst_norm_scaled );
+	 	normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
+	 	convertScaleAbs( dst_norm, dst_norm_scaled );
 
-		
-		dst_norm_scaled.copyTo(rois[2]);
+	 	
+	 	dst_norm_scaled.copyTo(rois[2]);
 
 		/// Drawing a circle around corners
-		for( int j = 0; j < dst_norm.rows ; j++ )
-     		{ 
-     			for( int i = 0; i < dst_norm.cols; i++ )
-          	{
-            	
-            	if( (int) dst_norm.at<float>(j,i) > thresh )
-              {
-                circle( rois[2], Point( i, j ), 2,  Scalar(0), 2, 8, 0 );
-              }
-          	
-          	}
-     		
-     		}
+	 	for( int j = 0; j < dst_norm.rows ; j++ )
+	 	{ 
+	 		for( int i = 0; i < dst_norm.cols; i++ )
+	 		{
+	 			
+	 			if( (int) dst_norm.at<float>(j,i) > thresh )
+	 			{
+	 				circle( rois[2], Point( i, j ), 2,  Scalar(0), 2, 8, 0 );
+	 			}
+	 			
+	 		}
+	 		
+	 	}
 
-	showImages(0,rois.size(),rois);
+	 	showImages(0,rois.size(),rois);
 
 
+	 }
+	 
+	 imshow("eyes_detect",imgs[0]);
+
+	 waitKey(0);                   
+	 return 0;
 	}
-     
-   	imshow("eyes_detect",imgs[0]);
-
-    waitKey(0);                   
-    return 0;
-}
