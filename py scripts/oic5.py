@@ -18,7 +18,15 @@ while(1):
 		dst = cv2.cornerHarris(gray,2,3,0.04)
 		dst = cv2.dilate(dst,None)
 
-		distlapl = cv2.distanceTransform(lapl, cv2.cv.CV_DIST_L1,5)
+		#distlapl = cv2.distanceTransform(lapl, cv2.cv.CV_DIST_L2,5)
+		#dist = cv2.distanceTransform(lapl, cv2.cv.CV_DIST_L2, cv2.cv.CV_DIST_MASK_PRECISE)
+		#dist3 = np.zeros((dist.shape[0], dist.shape[1], 3), dtype = np.uint8)
+		#dist3[:, :, 0] = dist
+		#dist3[:, :, 1] = dist
+		#dist3[:, :, 2] = dist
+
+		dist_transform = cv2.distanceTransform(lapl,cv2.cv.CV_DIST_L2,5)
+		ret, sure_fg = cv2.threshold(dist_transform,0.5*dist_transform.max(),255,0)
 
 		roi_corner[dst>0.01*dst.max()]=255
 		#cv2.imshow("roi" + str(i), roi)
@@ -26,7 +34,7 @@ while(1):
 			#cv2.imshow("lapl" + str(i), lapl)
 			#cv2.imshow("corner" + str(i), roi_corner)
 			#cv2.imshow("edge" + str(i), edge)
-			cv2.imshow("dist" + str(i), distlapl)
+			cv2.imshow("dist" + str(i), dist_transform)
 		i = i + 1
 
 	cv2.imshow("img1", img)

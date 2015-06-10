@@ -3,6 +3,8 @@
 #include<string.h>
 #include<stdlib.h>
 
+#define NL cout<<endl;
+
 using namespace cv;
 using namespace std;
 
@@ -85,13 +87,22 @@ int main(int argc, char** argv) {
 
 // Load Face cascade (.xml file)
     CascadeClassifier eye_cascade;
-    eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
+    //eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eyes.xml" );
  
     // Detect faces
     std::vector<Rect> eyes;
+
+    bool loaded = eye_cascade.load( "haarcascade_eye.xml" );
+    
+    if(!loaded) {
+    	cout<<"Empty";
+    	NL;
+    }
+
     eye_cascade.detectMultiScale( img_gray, eyes, 1.3, 2, 0|CV_HAAR_SCALE_IMAGE );
 
  	Mat roi_lapl,roi_edges;
+ 	cout<<eyes.size();
     
     // Draw the detected faces
     for( int e= 0;  e< eyes.size(); e++ )
