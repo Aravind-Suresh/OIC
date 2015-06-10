@@ -60,6 +60,7 @@ int main(int argc, char** argv) {
 	 for(int i=0;i<imgs.size();i++) {
 	 	img_gray.copyTo(imgs[i]);
 	 }
+
 	vector<Mat> rois(25);
 	/*
 	 *	0 - +laplacian
@@ -77,10 +78,7 @@ int main(int argc, char** argv) {
 	 *
 	 */
 
-	 for(int i=0;i<rois.size();i++) {
-	 	img_gray.copyTo(rois[i]);
-	 }
-
+	
 
 
 // Load eyes cascade (.xml file)
@@ -91,12 +89,11 @@ int main(int argc, char** argv) {
     eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
     cout<<eyes.size()<<endl;
 
- 	Mat roi_lapl,roi_edges;
-    
-    // Draw the detected faces
+ 	// Draw the detected eyes
     for( int e= 0;  e< eyes.size(); e++ )
     {
-    	//cout<<eyes[e].x<<" "<<eyes[e].y;
+    	
+    	cout<<"loop"<<eyes[e].x<<" "<<eyes[e].y;
     	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 5, 8, 0);
     	Mat roi (img_gray, eyes[e] );
      	
