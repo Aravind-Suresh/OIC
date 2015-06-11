@@ -26,6 +26,13 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
   }
 }
 
+void sharpen(Mat& im) 
+{
+    Mat tmp;
+    GaussianBlur(im, tmp, Size(5,5), 5);
+    addWeighted(im, 1.5, tmp, -0.75, 0, im);
+}
+
  /** Global variables */
  String face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
  String eyes_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_eye.xml" ;
@@ -97,11 +104,13 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
        if( !frame.empty() )
        { 
           vector<Rect> faces;
-          Mat frame_gray;
+          Mat frame_gray,frame_gray_sharp;
 
           cvtColor( frame, frame_gray, CV_BGR2GRAY );
           equalizeHist( frame_gray, frame_gray );
-          
+
+          //sharpen(frame_gray);
+
 
   //-- Detect faces
           face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
@@ -148,10 +157,9 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
     /// Normalizing
                 normalize( dst, dst_norm, 0, 255, NORM_MINMAX, CV_32FC1, Mat() );
                 convertScaleAbs( dst_norm, dst_norm_scaled );
-
-    
                 dst_norm_scaled.copyTo(rois[2]);
 
+  
     /// Drawing a circle around corners
                 for( int p = 0; p < dst_norm.rows ; p++ )
                 { 
@@ -167,16 +175,43 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
                     }
       
                   }
+
+
+              /// Reduce the noise so we avoid false circle detection
+              
+              // GaussianBlur( imgs[2], imgs[2], Size(9, 9), 2, 2 );
+
+                vector<Vec3f> circles;
+
+    /// Apply the Hough Transform to find the circles
+                HoughCircles( eye_roi, circles, CV_HOUGH_GRADIENT, 1, eye_roi.rows/4, 200, 100, 0, 0 );
+                cout<<endl<<"no. of circles "<<circles.size();
+    /// Draw the circles detected
+                for( size_t r = 0; r < circles.size(); r++ )
+                {
+                  Point center(cvRound(circles[r][0]), cvRound(circles[r][1]));
+                  int radius = cvRound(circles[r][2]);
+                // circle center
+                  circle( imgs[3], center, 3, Scalar(0,255,0), -1, 8, 0 );
+                // circle outline
+                  circle( imgs[3], center, radius, Scalar(0,0,255), 3, 8, 0 );
+                }
+
               
               showImages(j,0,2,rois);
 
               }
             
             }
-  
+
+
+      //sharpen(imgs[0]);
+      //sharpen(imgs[1]);
+
       //imshow( window_name, frame ); }
       imshow("eyes_detect",imgs[0]);   
-      imshow("eyes_detect_corner",imgs[1]);
+      imshow("eyes_detect_corner",imgs[1]);      
+      imshow("eyes_detect_circles",imgs[3]);
 
         }
 

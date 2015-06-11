@@ -140,6 +140,24 @@ int main(int argc, char** argv) {
 	 		}
 	 		
 	 	}
+// GaussianBlur( imgs[2], imgs[2], Size(9, 9), 2, 2 );
+
+                vector<Vec3f> circles;
+
+    /// Apply the Hough Transform to find the circles
+                HoughCircles( roi, circles, CV_HOUGH_GRADIENT, 1, roi.rows/4, 200, 100, 0, 0 );
+                cout<<endl<<"no. of circles "<<circles.size();
+    /// Draw the circles detected
+                for( size_t r = 0; r < circles.size(); r++ )
+                {
+                  Point center(cvRound(circles[r][0]), cvRound(circles[r][1]));
+                  int radius = cvRound(circles[r][2]);
+                // circle center
+                  circle( imgs[2], center, 3, Scalar(0,255,0), -1, 8, 0 );
+                // circle outline
+                  circle( imgs[2], center, radius, Scalar(0,0,255), 3, 8, 0 );
+                }
+
 
 	 	showImages(e,0,2,rois);
 
@@ -147,7 +165,8 @@ int main(int argc, char** argv) {
 	 }
 	 
 	 imshow("eyes_detect",imgs[0]);	 
-	 imshow("eyes_detect_corner",imgs[1]);
+	 imshow("eyes_detect_corner",imgs[1]);	 
+	 imshow("eyes_detect_circles",imgs[2]);
 
 	 waitKey(0);                   
 	 return 0;
