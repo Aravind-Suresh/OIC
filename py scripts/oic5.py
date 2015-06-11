@@ -31,6 +31,7 @@ while(1):
 		roi_corner[dst>0.01*dst.max()]=255
 		#cv2.imshow("roi" + str(i), roi)
 		if i<3:
+			
 			#cv2.imshow("lapl" + str(i), lapl)
 			#cv2.imshow("corner" + str(i), roi_corner)
 			#cv2.imshow("edge" + str(i), edge)
