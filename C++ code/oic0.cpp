@@ -133,7 +133,8 @@ int main(int argc, char** argv) {
 	 			
 	 			if( (int) dst_norm.at<float>(j,i) > thresh )
 	 			{
-	 				circle( rois[2], Point( i, j ), 2,  Scalar(0), 2, 8, 0 );
+	 				circle( rois[2], Point( i, j ), 1,  Scalar(0), 2, 8, 0 );
+	 				circle( imgs[1], Point(i+eyes[e].x,j+eyes[e].y) ,1,Scalar(0),2,8,0);
 	 			}
 	 			
 	 		}
@@ -145,7 +146,8 @@ int main(int argc, char** argv) {
 
 	 }
 	 
-	 imshow("eyes_detect",imgs[0]);
+	 imshow("eyes_detect",imgs[0]);	 
+	 imshow("eyes_detect_corner",imgs[1]);
 
 	 waitKey(0);                   
 	 return 0;
