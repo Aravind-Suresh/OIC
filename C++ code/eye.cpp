@@ -27,8 +27,8 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
 }
 
  /** Global variables */
- String face_cascade_name = "/home/rupesh/cvg/OpenCV/opencv-2.4.11/data/haarcascades/haarcascade_frontalface_alt.xml";
- String eyes_cascade_name = "/home/rupesh/cvg/OpenCV/opencv-2.4.11/data/haarcascades/haarcascade_eye.xml";
+ String face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+ String eyes_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_eye.xml" ;
  CascadeClassifier face_cascade;
  CascadeClassifier eyes_cascade;
  string window_name = "Capture - Face detection";
