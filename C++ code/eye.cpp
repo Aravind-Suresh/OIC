@@ -45,7 +45,7 @@
        int c = waitKey(10);
        if( (char)c == 'c' ) { break; }
       }
-   
+   waitKey(0);
    return 0;
  }
 
