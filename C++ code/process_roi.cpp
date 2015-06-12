@@ -22,10 +22,10 @@ using namespace std;
 */
 void deleteSeed(Mat &src, Point p)
 {
-	if(src.at<uchar>(p[0]+1,p[1])==255||src.at<uchar>(p[0],p[1]+1)==255||src.at<uchar>(p[0]-1,p[1])==255||src.at<uchar>(p[0],p[1]-1)==255) return ;
+	if(src.at<uchar>(p)==0) return ;
 
 	else 
-	{	if(src.at<uchar>(p[0]+1,p[1])==0||src.at<uchar>(p[0],p[1]+1)==0||src.at<uchar>(p[0]-1,p[1])==0||src.at<uchar>(p[0],p[1]-1)==0)src.at<uchar>(p)=255;
+	{	if(src.at<uchar>(p[0]+1,p[1])==255||src.at<uchar>(p[0],p[1]+1)==255||src.at<uchar>(p[0]-1,p[1])==255||src.at<uchar>(p[0],p[1]-1)==255)src.at<uchar>(p)=0;
 		deleteSeed(src,Point(p[0]+1,p[1]));
 		deleteSeed(src,Point(p[0],p[1]+1));
 		deleteSeed(src,Point(p[0]-1,p[1]));
