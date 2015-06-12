@@ -23,6 +23,13 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
 	}
 }
 
+char* getWindowName(char* str, int i) {
+	char win_name[2];
+	win_name[0] = (char)(i+49);
+	win_name[1] = '\0';
+
+	return strcat(str, win_name);
+}
 
 int main(int argc, char** argv) {
 
@@ -62,7 +69,7 @@ int main(int argc, char** argv) {
 	 	img_gray.copyTo(imgs[i]);
 	 }
 
-	
+
 	 vector<Mat> rois(25);
 	/*
 	 *	0 - +laplacian
@@ -80,25 +87,25 @@ int main(int argc, char** argv) {
 	 *
 	 */
 
-	
+
 
 
 // Load eyes cascade (.xml file)
-    CascadeClassifier eye_cascade;
-    eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eye.xml" );
-	
-	vector<Rect> eyes;
-    eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
-    cout<<"no. detected "<<eyes.size()<<endl;
+	 CascadeClassifier eye_cascade;
+	 eye_cascade.load( "/usr/share/opencv/haarcascades/haarcascade_eye.xml" );
+
+	 vector<Rect> eyes;
+	 eye_cascade.detectMultiScale( img_gray, eyes, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+	 cout<<"no. detected "<<eyes.size()<<endl;
 
  	// Draw the detected eyes
-    for( int e= 0;  e< eyes.size(); e++ )
-    {
-    	
-    	cout<<"region "<<e<<" "<<eyes[e].x<<" "<<eyes[e].y<<endl;
-    	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 2, 8, 0);
-    	Mat roi (img_gray, eyes[e] );
-     	
+	 for( int e= 0;  e< eyes.size(); e++ )
+	 {
+
+	 	cout<<"region "<<e<<" "<<eyes[e].x<<" "<<eyes[e].y<<endl;
+	 	rectangle( imgs[0], eyes[e], Scalar(255,255,255), 2, 8, 0);
+	 	Mat roi (img_gray, eyes[e] );
+
 
 //roi laplacian
 	 	Laplacian(roi,rois[0], CV_8UC1, 3);
@@ -142,29 +149,42 @@ int main(int argc, char** argv) {
 	 	}
 // GaussianBlur( imgs[2], imgs[2], Size(9, 9), 2, 2 );
 
-                vector<Vec3f> circles;
+	 	vector<Vec3f> circles;
 
     /// Apply the Hough Transform to find the circles
-                HoughCircles( roi, circles, CV_HOUGH_GRADIENT, 1, roi.rows/4, 200, 100, 0, 0 );
-                cout<<endl<<"no. of circles "<<circles.size();
+	 	HoughCircles( roi, circles, CV_HOUGH_GRADIENT, 1, roi.rows/4, 200, 100, 0, 0 );
+	 	cout<<endl<<"no. of circles "<<circles.size();
     /// Draw the circles detected
-                for( size_t r = 0; r < circles.size(); r++ )
-                {
-                  Point center(cvRound(circles[r][0]), cvRound(circles[r][1]));
-                  int radius = cvRound(circles[r][2]);
+	 	for( size_t r = 0; r < circles.size(); r++ )
+	 	{
+	 		Point center(cvRound(circles[r][0]), cvRound(circles[r][1]));
+	 		int radius = cvRound(circles[r][2]);
                 // circle center
-                  circle( imgs[2], center, 3, Scalar(0,255,0), -1, 8, 0 );
+	 		circle( imgs[2], center, 3, Scalar(0,255,0), -1, 8, 0 );
                 // circle outline
-                  circle( imgs[2], center, radius, Scalar(0,0,255), 3, 8, 0 );
-                }
-
+	 		circle( imgs[2], center, radius, Scalar(0,0,255), 3, 8, 0 );
+	 	}
 
 	 	showImages(e,0,2,rois);
 
+	 	Mat img_dt(rois[2].rows, rois[2].cols, CV_32F, Scalar::all(0));
+	 	Mat img_out(rois[2].rows, rois[2].cols, CV_32F, Scalar::all(0));
 
-	 }
+	 	threshold(roi, rois[3], 0, 255, THRESH_BINARY + THRESH_OTSU);
 
-	 
+	 	char str1[] = {'o','t','\0'};
+	 	imshow(getWindowName(str1,e), rois[3]);
+
+	 	//distanceTransform(rois[0], img_dt, CV_DIST_L2, 3);
+	 	distanceTransform(rois[3], img_dt, CV_DIST_L2, 3);
+	 	normalize(img_dt, img_dt, 0, 1, NORM_MINMAX);
+
+	 	threshold(img_dt, img_dt, (0/255.0), 255, 1);
+	 	char str2[] = {'d','t','\0'};
+	 	imshow(getWindowName(str2,e), img_dt);
+
+
+	 }	 
 	 
 	 imshow("eyes_detect",imgs[0]);	 
 	 imshow("eyes_detect_corner",imgs[1]);	 
