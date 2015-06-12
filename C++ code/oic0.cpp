@@ -177,12 +177,12 @@ int main(int argc, char** argv) {
 
 	 	//distanceTransform(rois[0], img_dt, CV_DIST_L2, 3);
 	 	distanceTransform(rois[3], img_dt, CV_DIST_L2, 3);
-	 	normalize(img_dt, img_dt, 0, 1, NORM_MINMAX);
+	 	normalize(img_dt, img_dt, 0.1, 1, NORM_MINMAX);
 
-	 	threshold(img_dt, img_dt, (0/255.0), 255, 1);
+	 	threshold(img_dt, img_out, (20/255.0), 255, 1);
+	 	//threshold(roi, rois[4], 0)
 	 	char str2[] = {'d','t','\0'};
 	 	imshow(getWindowName(str2,e), img_dt);
-
 
 	 }	 
 	 
