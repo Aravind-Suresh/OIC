@@ -93,7 +93,7 @@ Mat floodKillEdges(Mat &mat) {
   rectangle(mat,Rect(0,0,mat.cols,mat.rows),255);
   
   Mat mask(mat.rows, mat.cols, CV_8U, 255);
-  queue <Point> toDo;
+  queue<Point> toDo;
   toDo.push(Point(0,0));
   while (!toDo.empty()) {
     Point p = toDo.front();
