@@ -7,11 +7,11 @@
 #include "constants.h"
 #include "helpers.h"
 
- using namespace std;
- using namespace cv;
+using namespace std;
+using namespace cv;
 
  /** Function Headers */
- 
+
 Point unscalePoint(Point p, Rect origSize) {
   float ratio = (((float)kFastEyeWidth)/origSize.width);
   int x = round(p.x / ratio);
@@ -93,7 +93,7 @@ Mat floodKillEdges(Mat &mat) {
   rectangle(mat,Rect(0,0,mat.cols,mat.rows),255);
   
   Mat mask(mat.rows, mat.cols, CV_8U, 255);
-  queue <Point> toDo;
+  queue<Point> toDo;
   toDo.push(Point(0,0));
   while (!toDo.empty()) {
     Point p = toDo.front();
@@ -235,7 +235,9 @@ Point findEyeCenter(Mat face, Rect eye, string debugWindow) {
     // redo max
     minMaxLoc(out, NULL,&maxVal,NULL,&maxP,mask);
   }
-  return unscalePoint(maxP,eye);
+ 
+  return unscalePoint(maxP, eye);
+
 }
 
 
@@ -250,64 +252,64 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
 }
 
  /** Global variables */
- String face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
- String eyes_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_eye.xml" ;
- CascadeClassifier face_cascade;
- CascadeClassifier eyes_cascade;
- string window_name = "Capture - Face detection";
+String face_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_frontalface_alt.xml";
+String eyes_cascade_name = "/usr/share/opencv/haarcascades/haarcascade_eye.xml" ;
+CascadeClassifier face_cascade;
+CascadeClassifier eyes_cascade;
+string window_name = "Capture - Face detection";
 
 
- 
+
  /** @function main */
- int main( int argc, const char** argv )
- {
+int main( int argc, const char** argv )
+{
 
   VideoCapture cap(0);
   
   Mat frame; 
   
    //-- 1. Load the cascades
-   if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
-   if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
+  if( !face_cascade.load( face_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
+  if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
 
    //-- 2. Read the video stream
-   
-     while( true )
-     {
+  
+  while( true )
+  {
 
-      cap>>frame;
-      vector<Mat> imgs(25);
+    cap>>frame;
+    vector<Mat> imgs(25);
 
-      for(int i=0;i<imgs.size();i++) {
+    for(int i=0;i<imgs.size();i++) {
       frame.copyTo(imgs[i]);
     }
 
-      vector<Mat> rois(25);
-  
+    vector<Mat> rois(25);
+    
    //-- 3. Apply the classifier to the frame
-       if( !frame.empty() )
-       { 
-          vector<Rect> faces;
-          Mat frame_gray;
+    if( !frame.empty() )
+    { 
+      vector<Rect> faces;
+      Mat frame_gray;
 
-          cvtColor( frame, frame_gray, CV_BGR2GRAY );
-          equalizeHist( frame_gray, frame_gray );
+      cvtColor( frame, frame_gray, CV_BGR2GRAY );
+      equalizeHist( frame_gray, frame_gray );
 
           //-- Detect faces
-          face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+      face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
 
-          for( size_t i = 0; i < faces.size(); i++ )
-            {               
-                rectangle( imgs[0], faces[i], Scalar(255,255,255), 2, 8, 0);
+      for( size_t i = 0; i < faces.size(); i++ )
+      {               
+        rectangle( imgs[0], faces[i], Scalar(255,255,255), 2, 8, 0);
 
-                Mat faceROI = frame_gray( faces[i] );
-                vector<Rect> eyes;
+        Mat faceROI = frame_gray( faces[i] );
+        vector<Rect> eyes;
 
     //-- In each face, detect eyes
-                eyes_cascade.detectMultiScale( faceROI, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+        eyes_cascade.detectMultiScale( faceROI, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
 
-              for( size_t j = 0; j < eyes.size(); j++ )
-              {  
+        for( size_t j = 0; j < eyes.size(); j++ )
+        {  
                 /*Point center( faces[i].x + eyes[j].x + eyes[j].width*0.5, faces[i].y + eyes[j].y + eyes[j].height*0.5 );
                 int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
                 circle( frame, center, radius, Scalar( 255, 0, 0 ), 4, 8, 0 );*/
@@ -321,23 +323,23 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
 
                 Point center= Point(faces[i].x + eyes[j].x+eyeLoc.x,faces[i].y + eyes[j].y+eyeLoc.y);
 
-                circle( imgs[0], center, 3, Scalar( 255, 0, 0 ), -1, 8, 0 );
+                circle( imgs[0], center, 1, Scalar( 255, 0, 0 ), -1, 8, 0 );
 
               }
-            
+              
             }
+            flip(imgs[0], imgs[0], 1);
+            
+            imshow("eyes_detect",imgs[0]);   
+
+          }
+
+          else{ printf(" --(!) No captured frame -- Break!"); break; }
+
+          int c = waitKey(1);
+          if( (char)c == 'c' ) { break; }
           
-      imshow("eyes_detect",imgs[0]);   
-
         }
-
-       else{ printf(" --(!) No captured frame -- Break!"); break; }
-
-        int c = waitKey(1);
-        if( (char)c == 'c' ) { break; }
-      
+        
+        return 0;
       }
-   
-   return 0;
- }
-
