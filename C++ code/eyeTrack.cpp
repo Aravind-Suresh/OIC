@@ -1,9 +1,9 @@
- #include <stdio.h>
+#include <stdio.h>
 #include <opencv2/opencv.hpp>
 #include <iostream>
 #include <string.h>
 #include <stdlib.h>
-
+#include <queue>
 #include "constants.h"
 #include "helpers.h"
 
@@ -235,7 +235,7 @@ Point findEyeCenter(Mat face, Rect eye, string debugWindow) {
     // redo max
     minMaxLoc(out, NULL,&maxVal,NULL,&maxP,mask);
   }
-  return unscalePoint(maxP,eye);
+  return maxP;
 }
 
 
@@ -319,7 +319,9 @@ void showImages(int e ,int l, int h, vector<Mat> imgs) {
                 Point eyeLoc;
                 eyeLoc=findEyeCenter(faceROI,eyes[j],"hello");
 
-                circle( imgs[0], eyeLoc, 2, Scalar( 255, 0, 0 ), -1, 8, 0 );
+                Point center= Point(faces[i].x + eyes[j].x+eyeLoc.x,faces[i].y + eyes[j].y+eyeLoc.y);
+
+                circle( imgs[0], center, 3, Scalar( 255, 0, 0 ), -1, 8, 0 );
 
               }
             
