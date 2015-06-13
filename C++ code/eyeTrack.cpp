@@ -235,7 +235,7 @@ Point findEyeCenter(Mat face, Rect eye, string debugWindow) {
     // redo max
     minMaxLoc(out, NULL,&maxVal,NULL,&maxP,mask);
   }
-  return maxP;
+  return unscalePoint(maxP,eye);
 }
 
 
