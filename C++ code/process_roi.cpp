@@ -9,6 +9,7 @@ using namespace std;
 /*
 	**************************************************************************************************************
 	Function to remove the patch of continuous points of white color, when a vector of points are given.
+	Removing means putting black colour instead of white.
 
 	parameters :
 		src - the source Mat GrayScale image.
@@ -22,7 +23,7 @@ using namespace std;
 */
 
 void deletePatch(Mat src, Mat& dst, vector<Point> points) {
-
+	
 }
 
 /*
