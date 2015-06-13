@@ -142,6 +142,7 @@ if(left){
    //-- 2. Read the video stream
 
     vector<Mat> imgs(25);
+    createCornerKernels();
 
     while( true )
     {
@@ -164,7 +165,7 @@ if(left){
           //-- Detect faces
         face_cascade.detectMultiScale( frame_gray, faces, 1.1, 2, 0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
 
-        cout<<"here";
+        //cout<<"here";
 
         for( size_t i = 0; i < faces.size(); i++ )
         {               
@@ -173,7 +174,7 @@ if(left){
           Mat faceROI = frame_gray( faces[i] );
           vector<Rect> eyes;
 
-          cout<<"faces detected";
+          //cout<<"faces detected";
 
     //-- In each face, detect eyes
           eyes_cascade.detectMultiScale( faceROI, eyes, 1.1, 2, 0 |CV_HAAR_SCALE_IMAGE, Size(30, 30) );
@@ -195,10 +196,11 @@ if(left){
 
                 circle( imgs[0], center, 1, Scalar( 255, 0, 0 ), -1, 8, 0 );*/
 
-                cout<<"eyes detected";
+                //cout<<"eyes detected";
 
-                Point2f corner = findEyeCorner(frame_gray(eyes[j]), true, false);
-                circle(imgs[0], corner, 1, Scalar(0,0,255), -1, 8, 0);
+                Point2f corner_roi = findEyeCorner(frame_gray(eyes[j]), true, false);
+                Point2f corner = Point2f(faces[i].x + eyes[j].x + corner_roi.x, faces[i].y + eyes[j].y + corner_roi.y);
+                circle(imgs[0], corner, 4, Scalar(0,0,255), -1, 8, 0);
 
               }
 
@@ -212,7 +214,9 @@ if(left){
           else{ printf(" --(!) No captured frame -- Break!"); break; }
 
           int c = waitKey(1);
-          if( (char)c == 'c' ) { break; }
+          if( (char)c == 'c' ) { 
+            releaseCornerKernels();
+            break; }
 
         }
 
