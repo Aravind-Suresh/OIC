@@ -21,9 +21,29 @@ using namespace std;
 
 	**************************************************************************************************************
 */
+void deleteSeed(Mat &src, Point p)
+{
+	if(src.at<uchar>(p)==0) return ;
+
+	else 
+	{	if(src.at<uchar>(p[0]+1,p[1])==255||src.at<uchar>(p[0],p[1]+1)==255||src.at<uchar>(p[0]-1,p[1])==255||src.at<uchar>(p[0],p[1]-1)==255)src.at<uchar>(p)=0;
+		deleteSeed(src,Point(p[0]+1,p[1]));
+		deleteSeed(src,Point(p[0],p[1]+1));
+		deleteSeed(src,Point(p[0]-1,p[1]));
+		deleteSeed(src,Point(p[0],p[1]-1));
+	}
+	
+}
 
 void deletePatch(Mat src, Mat& dst, vector<Point> points) {
 	
+	src.copyTo(dst);
+
+	for(int i=0;i<points.size();i++)
+	{
+		deleteSeed(dst,points(i));
+	}
+
 }
 
 /*
