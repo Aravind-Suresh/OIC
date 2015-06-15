@@ -271,7 +271,7 @@ int main( int argc, const char** argv )
   if( !eyes_cascade.load( eyes_cascade_name ) ){ printf("--(!)Error loading\n"); return -1; };
 
    //-- 2. Read the video stream
-  
+
   while( true )
   {
 
@@ -283,7 +283,7 @@ int main( int argc, const char** argv )
     }
 
     vector<Mat> rois(25);
-    
+
    //-- 3. Apply the classifier to the frame
     if( !frame.empty() )
     { 
@@ -321,13 +321,19 @@ int main( int argc, const char** argv )
 
                 Point center= Point(faces[i].x + eyes[j].x+eyeLoc.x,faces[i].y + eyes[j].y+eyeLoc.y);
 
-                circle( imgs[0], center, 1, Scalar( 255, 0, 0 ), -1, 8, 0 );
+                circle( imgs[0], center, 3, Scalar( 255, 0, 0 ), -1, 8, 0 );
+
+                center= Point(eyeLoc.x,eyeLoc.y);
+
+                circle( eyeROI, center, 3, Scalar( 255, 0, 0 ), -1, 8, 0 );
+                char str[] = {(char)(j), '\0'};                
+                imshow(str, eyeROI);
 
               }
-              
+
             }
             flip(imgs[0], imgs[0], 1);
-            
+
             imshow("eyes_detect",imgs[0]);   
 
           }
@@ -336,8 +342,8 @@ int main( int argc, const char** argv )
 
           int c = waitKey(1);
           if( (char)c == 'c' ) { break; }
-          
+
         }
-        
+
         return 0;
       }

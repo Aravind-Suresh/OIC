@@ -1,0 +1,892 @@
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h: In instantiation of ‘long int dlib::num_columns(const image_type&) [with image_type = cv::Mat]’:
+dlib/gui_widgets/widgets.h:3266:69:   required from ‘void dlib::image_display::set_image(const image_type&) [with image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3927:13:   required from ‘void dlib::image_window::set_image(const image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:45:22:   required from here
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:418:23: error: ‘const class cv::Mat’ has no member named ‘nc’
+     ) { return img.nc(); }
+                       ^
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h: In instantiation of ‘long int dlib::num_rows(const image_type&) [with image_type = cv::Mat]’:
+dlib/gui_widgets/widgets.h:3266:33:   required from ‘void dlib::image_display::set_image(const image_type&) [with image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3927:13:   required from ‘void dlib::image_window::set_image(const image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:45:22:   required from here
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:407:23: error: ‘const class cv::Mat’ has no member named ‘nr’
+     ) { return img.nr(); }
+                       ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h: In instantiation of ‘void dlib::assign_image_scaled(dest_image_type&, const src_image_type&, double) [with dest_image_type = dlib::array2d<dlib::rgb_alpha_pixel>; src_image_type = cv::Mat]’:
+dlib/gui_widgets/widgets.h:3281:44:   required from ‘void dlib::image_display::set_image(const image_type&) [with image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3927:13:   required from ‘void dlib::image_window::set_image(const image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:45:22:   required from here
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: error: no matching function for call to ‘mat(const cv::Mat&)’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note: candidates are:
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:23:28: note: template<class EXP> const dlib::matrix_exp<EXP>& dlib::mat(const dlib::matrix_exp<EXP>&)
+     const matrix_exp<EXP>& mat (
+                            ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:23:28: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::matrix_exp<EXP>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:60:148: note: template<class image_type> const typename dlib::disable_if<dlib::is_matrix<image_type>, dlib::matrix_op<dlib::op_image_to_mat<image_type, typename dlib::image_traits<image_type>::pixel_type> > >::type dlib::mat(const image_type&)
+     const typename disable_if<is_matrix<image_type>,matrix_op<op_image_to_mat<image_type, typename image_traits<image_type>::pixel_type> > >::type mat (
+                                                                                                                                                    ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:60:148: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h: In substitution of ‘template<class image_type> const typename dlib::disable_if<dlib::is_matrix<image_type>, dlib::matrix_op<dlib::op_image_to_mat<image_type, typename dlib::image_traits<image_type>::pixel_type> > >::type dlib::mat(const image_type&) [with image_type = cv::Mat]’:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47:   required from ‘void dlib::assign_image_scaled(dest_image_type&, const src_image_type&, double) [with dest_image_type = dlib::array2d<dlib::rgb_alpha_pixel>; src_image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3281:44:   required from ‘void dlib::image_display::set_image(const image_type&) [with image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3927:13:   required from ‘void dlib::image_window::set_image(const image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:45:22:   required from here
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:60:148: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h: In instantiation of ‘void dlib::assign_image_scaled(dest_image_type&, const src_image_type&, double) [with dest_image_type = dlib::array2d<dlib::rgb_alpha_pixel>; src_image_type = cv::Mat]’:
+dlib/gui_widgets/widgets.h:3281:44:   required from ‘void dlib::image_display::set_image(const image_type&) [with image_type = cv::Mat]’
+dlib/gui_widgets/widgets.h:3927:13:   required from ‘void dlib::image_window::set_image(const image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:45:22:   required from here
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:96:56: note: template<class image_type> const dlib::matrix_op<dlib::op_image_view_to_mat<image_type> > dlib::mat(const dlib::image_view<image_type>&)
+     const matrix_op<op_image_view_to_mat<image_type> > mat (
+                                                        ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:96:56: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::image_view<image_type>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:132:62: note: template<class image_type> const dlib::matrix_op<dlib::op_const_image_view_to_mat<image_type> > dlib::mat(const dlib::const_image_view<image_type>&)
+     const matrix_op<op_const_image_view_to_mat<image_type> > mat (
+                                                              ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:132:62: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::const_image_view<image_type>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:169:53: note: template<class T, class MM> const dlib::matrix_op<dlib::op_array_to_mat<dlib::array<T, mem_manager> > > dlib::mat(const dlib::array<T, mem_manager>&)
+     const matrix_op<op_array_to_mat<array<T,MM> > > mat (
+                                                     ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:169:53: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::array<T, mem_manager>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:217:74: note: template<class value_type, class alloc> const dlib::matrix_op<dlib::op_std_vect_to_mat<std::vector<_Tp, _Alloc> > > dlib::mat(const std::vector<_Tp, _Alloc>&)
+     const matrix_op<op_std_vect_to_mat<std::vector<value_type,alloc> > > mat (
+                                                                          ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:217:74: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const std::vector<_Tp, _Alloc>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:231:75: note: template<class value_type, class alloc> const dlib::matrix_op<dlib::op_std_vect_to_mat<dlib::std_vector_c<T, Allocator> > > dlib::mat(const dlib::std_vector_c<T, Allocator>&)
+     const matrix_op<op_std_vect_to_mat<std_vector_c<value_type,alloc> > > mat (
+                                                                           ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:231:75: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::std_vector_c<T, Allocator>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:271:49: note: template<class T> const dlib::matrix_op<dlib::op_pointer_to_col_vect<T> > dlib::mat(const T*, long int)
+     const matrix_op<op_pointer_to_col_vect<T> > mat (
+                                                 ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:271:49: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   mismatched types ‘const T*’ and ‘cv::Mat’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:319:44: note: template<class T> const dlib::matrix_op<dlib::op_pointer_to_mat<T> > dlib::mat(const T*, long int, long int)
+     const matrix_op<op_pointer_to_mat<T> > mat (
+                                            ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:319:44: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   mismatched types ‘const T*’ and ‘cv::Mat’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:371:60: note: template<class T> const dlib::matrix_op<dlib::op_arma_Mat_to_mat<arma::Mat<T> > > dlib::mat(const arma::Mat<T>&)
+     const matrix_op<op_arma_Mat_to_mat< ::arma::Mat<T> > > mat (
+                                                            ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:371:60: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const arma::Mat<T>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:414:125: note: template<class _Scalar, int _Rows, int _Cols, int _Options, int _MaxRows, int _MaxCols> const dlib::matrix_op<dlib::op_eigen_Matrix_to_mat<Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>, _Rows, _Cols> > dlib::mat(const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>&)
+     const matrix_op<op_eigen_Matrix_to_mat< ::Eigen::Matrix<_Scalar,_Rows,_Cols,_Options,_MaxRows,_MaxCols>,_Rows,_Cols > > mat (
+                                                                                                                             ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:414:125: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const Eigen::Matrix<_Scalar, _Rows, _Cols, _Options, _MaxRows, _MaxCols>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:523:57: note: template<class T, class MM> const dlib::matrix_op<dlib::op_array2d_to_mat<dlib::array2d<T, mem_manager> > > dlib::mat(const dlib::array2d<T, mem_manager>&)
+     const matrix_op<op_array2d_to_mat<array2d<T,MM> > > mat (
+                                                         ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:523:57: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::array2d<T, mem_manager>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20:0,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:584:31: note: dlib::matrix<double, 1l, 1l> dlib::mat(double)
+     inline matrix<double,1,1> mat (
+                               ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:584:31: note:   no known conversion for argument 1 from ‘const cv::Mat’ to ‘double’
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:593:30: note: dlib::matrix<float, 1l, 1l> dlib::mat(float)
+     inline matrix<float,1,1> mat (
+                              ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:593:30: note:   no known conversion for argument 1 from ‘const cv::Mat’ to ‘float’
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:602:36: note: dlib::matrix<long double, 1l, 1l> dlib::mat(long double)
+     inline matrix<long double,1,1> mat (
+                                    ^
+dlib/image_processing/../image_processing/../matrix/matrix_mat.h:602:36: note:   no known conversion for argument 1 from ‘const cv::Mat’ to ‘long double’
+In file included from dlib/image_processing/../image_processing/../statistics.h:8:0,
+                 from dlib/image_processing/../image_processing/scan_image_pyramid_tools.h:7,
+                 from dlib/image_processing/../image_processing.h:11,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../statistics/random_subset_selector.h:358:67: note: template<class T> const dlib::matrix_op<dlib::op_array_to_mat<dlib::random_subset_selector<T> > > dlib::mat(const dlib::random_subset_selector<T>&)
+     const matrix_op<op_array_to_mat<random_subset_selector<T> > > mat (
+                                                                   ^
+dlib/image_processing/../image_processing/../statistics/random_subset_selector.h:358:67: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:6:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/assign_image.h:177:47: note:   ‘const cv::Mat’ is not derived from ‘const dlib::random_subset_selector<T>’
+         impl_assign_image_scaled(dest, mat(src),thresh);
+                                               ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h: In instantiation of ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&, const interpolation_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>; interpolation_type = dlib::interpolate_bilinear]’:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1509:64:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1524:34:   required from ‘void dlib::pyramid_up(image_type&, const pyramid_type&) [with image_type = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1538:28:   required from ‘void dlib::pyramid_up(image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:23:19:   required from here
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1473:41: error: no matching function for call to ‘set_image_size(cv::Mat&, int, int)’
+             set_image_size(out_img, 0, 0);
+                                         ^
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1473:41: note: candidates are:
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d.h:9:0,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note: template<class T, class mm> void dlib::set_image_size(dlib::array2d<T, mem_manager>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1473:41: note:   ‘cv::Mat’ is not derived from ‘dlib::array2d<T, mem_manager>’
+             set_image_size(out_img, 0, 0);
+                                         ^
+In file included from dlib/image_processing/../image_processing/../matrix.h:16:0,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note: template<class T, long int NR, long int NC, class MM> void dlib::set_image_size(dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1473:41: note:   ‘cv::Mat’ is not derived from ‘dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>’
+             set_image_size(out_img, 0, 0);
+                                         ^
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1481:41: error: no matching function for call to ‘set_image_size(cv::Mat&, int, int)’
+             set_image_size(out_img, 0, 0);
+                                         ^
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1481:41: note: candidates are:
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d.h:9:0,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note: template<class T, class mm> void dlib::set_image_size(dlib::array2d<T, mem_manager>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1481:41: note:   ‘cv::Mat’ is not derived from ‘dlib::array2d<T, mem_manager>’
+             set_image_size(out_img, 0, 0);
+                                         ^
+In file included from dlib/image_processing/../image_processing/../matrix.h:16:0,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note: template<class T, long int NR, long int NC, class MM> void dlib::set_image_size(dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1481:41: note:   ‘cv::Mat’ is not derived from ‘dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>’
+             set_image_size(out_img, 0, 0);
+                                         ^
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1484:68: error: no matching function for call to ‘set_image_size(cv::Mat&, long int, long int)’
+         set_image_size(out_img, uprect.bottom()+1, uprect.right()+1);
+                                                                    ^
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1484:68: note: candidates are:
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d.h:9:0,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note: template<class T, class mm> void dlib::set_image_size(dlib::array2d<T, mem_manager>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/../array2d/array2d_generic_image.h:28:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1484:68: note:   ‘cv::Mat’ is not derived from ‘dlib::array2d<T, mem_manager>’
+         set_image_size(out_img, uprect.bottom()+1, uprect.right()+1);
+                                                                    ^
+In file included from dlib/image_processing/../image_processing/../matrix.h:16:0,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note: template<class T, long int NR, long int NC, class MM> void dlib::set_image_size(dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>&, long int, long int)
+     inline void set_image_size(
+                 ^
+dlib/image_processing/../image_processing/../matrix/matrix_generic_image.h:55:17: note:   template argument deduction/substitution failed:
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1484:68: note:   ‘cv::Mat’ is not derived from ‘dlib::matrix<T, NR_, NC_, MM, dlib::row_major_layout>’
+         set_image_size(out_img, uprect.bottom()+1, uprect.right()+1);
+                                                                    ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h: In instantiation of ‘const bool dlib::is_rgb_image<cv::Mat>::value’:
+dlib/image_processing/../image_processing/../matrix/../enable_if.h:23:10:   required from ‘struct dlib::enable_if<dlib::is_rgb_image<cv::Mat>, void>’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:857:57:   required by substitution of ‘template<class image_type> typename dlib::enable_if<dlib::is_rgb_image<image_type> >::type dlib::resize_image(const image_type&, image_type&, dlib::interpolate_bilinear) [with image_type = cv::Mat]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1486:45:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&, const interpolation_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>; interpolation_type = dlib::interpolate_bilinear]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1509:64:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1524:34:   required from ‘void dlib::pyramid_up(image_type&, const pyramid_type&) [with image_type = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1538:28:   required from ‘void dlib::pyramid_up(image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:23:19:   required from here
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:656:45: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+     struct is_rgb_image { const static bool value = pixel_traits<typename image_traits<image_type>::pixel_type>::rgb; };
+                                             ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h: In instantiation of ‘const bool dlib::is_grayscale_image<cv::Mat>::value’:
+dlib/image_processing/../image_processing/../matrix/../enable_if.h:23:10:   required from ‘struct dlib::enable_if<dlib::is_grayscale_image<cv::Mat>, void>’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:755:63:   required by substitution of ‘template<class image_type> typename dlib::enable_if<dlib::is_grayscale_image<image_type> >::type dlib::resize_image(const image_type&, image_type&, dlib::interpolate_bilinear) [with image_type = cv::Mat]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1486:45:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&, const interpolation_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>; interpolation_type = dlib::interpolate_bilinear]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1509:64:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1524:34:   required from ‘void dlib::pyramid_up(image_type&, const pyramid_type&) [with image_type = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1538:28:   required from ‘void dlib::pyramid_up(image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:23:19:   required from here
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:658:51: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+     struct is_grayscale_image { const static bool value = pixel_traits<typename image_traits<image_type>::pixel_type>::grayscale; };
+                                                   ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h: In instantiation of ‘void dlib::impl::create_fhog_pyramid(const image_type&, const feature_extractor_type&, dlib::array<dlib::array<dlib::array2d<float> > >&, int, int, int, long unsigned int, long unsigned int, long unsigned int) [with pyramid_type = dlib::pyramid_down<6u>; image_type = cv::Mat; feature_extractor_type = dlib::default_fhog_feature_extractor]’:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:635:31:   required from ‘void dlib::scan_fhog_pyramid<Pyramid_type, Feature_extractor_type>::load(const image_type&) [with image_type = cv::Mat; Pyramid_type = dlib::pyramid_down<6u>; Feature_extractor_type = dlib::default_fhog_feature_extractor]’
+dlib/image_processing/../image_processing/object_detector.h:435:9:   required from ‘void dlib::object_detector<image_scanner_type_>::operator()(const image_type&, std::vector<dlib::rect_detection>&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+dlib/image_processing/../image_processing/object_detector.h:509:42:   required from ‘std::vector<dlib::rectangle> dlib::object_detector<image_scanner_type_>::operator()(const image_type&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+oicv2.cpp:24:53:   required from here
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:601:71: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 typedef typename image_traits<image_type>::pixel_type pixel_type;
+                                                                       ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:44: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                            ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:44: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                            ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:44: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                            ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:37: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                     ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/remove_unobtainable_rectangles.h:10:0,
+                 from dlib/image_processing/../image_processing.h:15,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:602:44: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+                 array2d<pixel_type> temp1, temp2;
+                                            ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h: In instantiation of ‘long unsigned int dlib::image_size(const image_type&) [with image_type = cv::Mat]’:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1471:30:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&, const interpolation_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>; interpolation_type = dlib::interpolate_bilinear]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1509:64:   required from ‘void dlib::pyramid_up(const image_type1&, image_type2&, const pyramid_type&) [with image_type1 = cv::Mat; image_type2 = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1524:34:   required from ‘void dlib::pyramid_up(image_type&, const pyramid_type&) [with image_type = cv::Mat; pyramid_type = dlib::pyramid_down<2u>]’
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:1538:28:   required from ‘void dlib::pyramid_up(image_type&) [with image_type = cv::Mat]’
+oicv2.cpp:23:19:   required from here
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:393:45: error: ‘num_rows’ was not declared in this scope, and no declarations were found by argument-dependent lookup at the point of instantiation [-fpermissive]
+     ) { return num_columns(img)*num_rows(img); }
+                                             ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:92:17: note: ‘template<class T> long int dlib::num_rows(const dlib::const_sub_image_proxy<T>&)’ declared here, later in the translation unit
+     inline long num_rows( const const_sub_image_proxy<T>& img) { return img._nr; }
+                 ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:393:31: error: ‘num_columns’ was not declared in this scope, and no declarations were found by argument-dependent lookup at the point of instantiation [-fpermissive]
+     ) { return num_columns(img)*num_rows(img); }
+                               ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:19:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/interpolation.h:94:17: note: ‘template<class T> long int dlib::num_columns(const dlib::const_sub_image_proxy<T>&)’ declared here, later in the translation unit
+     inline long num_columns( const const_sub_image_proxy<T>& img) { return img._nc; }
+                 ^
+In file included from dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/rectangle.h:12:0,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d/array2d_kernel.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/../array2d.h:7,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_mat.h:10,
+                 from dlib/image_processing/../image_processing/../matrix/matrix_utilities.h:20,
+                 from dlib/image_processing/../image_processing/../matrix.h:7,
+                 from dlib/image_processing/../image_processing/scan_image.h:9,
+                 from dlib/image_processing/../image_processing.h:6,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h: In instantiation of ‘class dlib::const_image_view<cv::Mat>’:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:519:42:   required from ‘void dlib::impl_fhog::impl_extract_fhog_features(const image_type&, out_type&, int, int, int) [with image_type = cv::Mat; out_type = dlib::array<dlib::array2d<float> >]’
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:880:108:   required from ‘void dlib::extract_fhog_features(const image_type&, dlib::array<dlib::array2d<T, mm1>, mm2>&, int, int, int) [with image_type = cv::Mat; T = float; mm1 = dlib::memory_manager_stateless_kernel_1<char>; mm2 = dlib::memory_manager_stateless_kernel_1<char>]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:52:92:   required from ‘void dlib::default_fhog_feature_extractor::operator()(const image_type&, dlib::array<dlib::array2d<float> >&, int, int, int) const [with image_type = cv::Mat]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:594:80:   required from ‘void dlib::impl::create_fhog_pyramid(const image_type&, const feature_extractor_type&, dlib::array<dlib::array<dlib::array2d<float> > >&, int, int, int, long unsigned int, long unsigned int, long unsigned int) [with pyramid_type = dlib::pyramid_down<6u>; image_type = cv::Mat; feature_extractor_type = dlib::default_fhog_feature_extractor]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:635:31:   required from ‘void dlib::scan_fhog_pyramid<Pyramid_type, Feature_extractor_type>::load(const image_type&) [with image_type = cv::Mat; Pyramid_type = dlib::pyramid_down<6u>; Feature_extractor_type = dlib::default_fhog_feature_extractor]’
+dlib/image_processing/../image_processing/object_detector.h:435:9:   required from ‘void dlib::object_detector<image_scanner_type_>::operator()(const image_type&, std::vector<dlib::rect_detection>&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+dlib/image_processing/../image_processing/object_detector.h:509:42:   required from ‘std::vector<dlib::rectangle> dlib::object_detector<image_scanner_type_>::operator()(const image_type&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+oicv2.cpp:24:53:   required from here
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:313:63: error: invalid use of incomplete type ‘struct dlib::image_traits<cv::Mat>’
+         typedef typename image_traits<image_type>::pixel_type pixel_type;
+                                                               ^
+dlib/image_processing/../image_processing/../matrix/../array2d/../geometry/../image_processing/generic_image.h:123:12: error: declaration of ‘struct dlib::image_traits<cv::Mat>’
+     struct image_traits;
+            ^
+In file included from dlib/image_processing/../image_processing/../image_transforms.h:20:0,
+                 from dlib/image_processing/../image_processing/scan_image_boxes.h:13,
+                 from dlib/image_processing/../image_processing/setup_hashed_features.h:8,
+                 from dlib/image_processing/../image_processing.h:12,
+                 from dlib/image_processing/frontal_face_detector.h:7,
+                 from oicv2.cpp:2:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h: In instantiation of ‘void dlib::impl_fhog::impl_extract_fhog_features(const image_type&, out_type&, int, int, int) [with image_type = cv::Mat; out_type = dlib::array<dlib::array2d<float> >]’:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:880:108:   required from ‘void dlib::extract_fhog_features(const image_type&, dlib::array<dlib::array2d<T, mm1>, mm2>&, int, int, int) [with image_type = cv::Mat; T = float; mm1 = dlib::memory_manager_stateless_kernel_1<char>; mm2 = dlib::memory_manager_stateless_kernel_1<char>]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:52:92:   required from ‘void dlib::default_fhog_feature_extractor::operator()(const image_type&, dlib::array<dlib::array2d<float> >&, int, int, int) const [with image_type = cv::Mat]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:594:80:   required from ‘void dlib::impl::create_fhog_pyramid(const image_type&, const feature_extractor_type&, dlib::array<dlib::array<dlib::array2d<float> > >&, int, int, int, long unsigned int, long unsigned int, long unsigned int) [with pyramid_type = dlib::pyramid_down<6u>; image_type = cv::Mat; feature_extractor_type = dlib::default_fhog_feature_extractor]’
+dlib/image_processing/../image_processing/scan_fhog_pyramid.h:635:31:   required from ‘void dlib::scan_fhog_pyramid<Pyramid_type, Feature_extractor_type>::load(const image_type&) [with image_type = cv::Mat; Pyramid_type = dlib::pyramid_down<6u>; Feature_extractor_type = dlib::default_fhog_feature_extractor]’
+dlib/image_processing/../image_processing/object_detector.h:435:9:   required from ‘void dlib::object_detector<image_scanner_type_>::operator()(const image_type&, std::vector<dlib::rect_detection>&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+dlib/image_processing/../image_processing/object_detector.h:509:42:   required from ‘std::vector<dlib::rectangle> dlib::object_detector<image_scanner_type_>::operator()(const image_type&, double) [with image_type = cv::Mat; image_scanner_type_ = dlib::scan_fhog_pyramid<dlib::pyramid_down<6u> >]’
+oicv2.cpp:24:53:   required from here
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:642:57: error: no matching function for call to ‘get_gradient(int&, int&, dlib::const_image_view<cv::Mat>&, dlib::simd4f&, dlib::simd4f&, dlib::simd4f&)’
+                     get_gradient(y,x,img,grad_x,grad_y,v);
+                                                         ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:642:57: note: candidates are:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:25:101: note: template<class image_type> typename dlib::enable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&, double&)
+         inline typename dlib::enable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                     ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:25:101: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:642:57: note:   cannot convert ‘grad_x’ (type ‘dlib::simd4f’) to type ‘dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&’
+                     get_gradient(y,x,img,grad_x,grad_y,v);
+                                                         ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:63:101: note: template<class image_type> typename dlib::enable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::simd4f&, dlib::simd4f&, dlib::simd4f&)
+         inline typename dlib::enable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                     ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:63:101: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:148:102: note: template<class image_type> typename dlib::disable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&, double&)
+         inline typename dlib::disable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                      ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:148:102: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:642:57: note:   cannot convert ‘grad_x’ (type ‘dlib::simd4f’) to type ‘dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&’
+                     get_gradient(y,x,img,grad_x,grad_y,v);
+                                                         ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:162:102: note: template<class image_type> typename dlib::disable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::simd4f&, dlib::simd4f&, dlib::simd4f&)
+         inline typename dlib::disable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                      ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:162:102: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:713:48: error: no matching function for call to ‘get_gradient(int&, int&, dlib::const_image_view<cv::Mat>&, dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&, double&)’
+                     get_gradient(y,x,img,grad,v);
+                                                ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:713:48: note: candidates are:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:25:101: note: template<class image_type> typename dlib::enable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&, double&)
+         inline typename dlib::enable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                     ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:25:101: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:63:101: note: template<class image_type> typename dlib::enable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::simd4f&, dlib::simd4f&, dlib::simd4f&)
+         inline typename dlib::enable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                     ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:63:101: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:713:48: note:   cannot convert ‘grad’ (type ‘dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>’) to type ‘dlib::simd4f&’
+                     get_gradient(y,x,img,grad,v);
+                                                ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:148:102: note: template<class image_type> typename dlib::disable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>&, double&)
+         inline typename dlib::disable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                      ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:148:102: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:162:102: note: template<class image_type> typename dlib::disable_if_c<dlib::pixel_traits<typename image_view_type::pixel_type>::rgb>::type dlib::impl_fhog::get_gradient(int, int, const image_type&, dlib::simd4f&, dlib::simd4f&, dlib::simd4f&)
+         inline typename dlib::disable_if_c<pixel_traits<typename image_type::pixel_type>::rgb>::type get_gradient (
+                                                                                                      ^
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:162:102: note:   template argument deduction/substitution failed:
+dlib/image_processing/../image_processing/../image_transforms/fhog.h:713:48: note:   cannot convert ‘grad’ (type ‘dlib::matrix<double, 2l, 1l, dlib::memory_manager_stateless_kernel_1<char>, dlib::row_major_layout>’) to type ‘dlib::simd4f&’
+                     get_gradient(y,x,img,grad,v);
+                                                ^
