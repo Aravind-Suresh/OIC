@@ -1,0 +1,7 @@
+[ 96%] Built target dlib
+[ 98%] Built target assignment_learning_ex
+Scanning dependencies of target oicv2
+[100%] Building CXX object CMakeFiles/oicv2.dir/oicv2.cpp.o
+make[2]: *** [CMakeFiles/oicv2.dir/oicv2.cpp.o] Interrupt
+make[1]: *** [CMakeFiles/oicv2.dir/all] Interrupt
+make: *** [all] Interrupt
