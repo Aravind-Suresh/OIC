@@ -3,12 +3,9 @@
 #include "dlib/gui_widgets.h"
 #include "dlib/image_io.h"
 #include "dlib/opencv/cv_image.h"
-<<<<<<< HEAD
-=======
 #include "dlib/image_transforms/assign_image.h"
 #include "dlib/image_processing/render_face_detections.h"
 #include "dlib/pixel.h"
->>>>>>> 36c0b83c2fdae05761256d2a7b010daf91a72a43
 #include <iostream>
 #include <opencv2/opencv.hpp>
 
