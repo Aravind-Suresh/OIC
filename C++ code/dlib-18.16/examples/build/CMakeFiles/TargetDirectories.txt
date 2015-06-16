@@ -1,0 +1,3 @@
+/home/aravind/Downloads/dlib-18.16/examples/build/CMakeFiles/assignment_learning_ex.dir
+/home/aravind/Downloads/dlib-18.16/examples/build/dlib_build/CMakeFiles/dlib.dir
+/home/aravind/Downloads/dlib-18.16/examples/build/CMakeFiles/oicv2.dir
