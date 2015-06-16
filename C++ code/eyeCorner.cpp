@@ -185,10 +185,10 @@ if(left){
                 int radius = cvRound( (eyes[j].width + eyes[j].height)*0.25 );
                 circle( frame, center, radius, Scalar( 255, 0, 0 ), 4, 8, 0 );*/
 
-                /*Mat eyeROI(faceROI,eyes[j]);
+                /*Mat eyeROI(faceROI,eyes[j]);*/
 
                 rectangle( imgs[0], Point(faces[i].x + eyes[j].x,faces[i].y + eyes[j].y ),Point(faces[i].x + eyes[j].x + eyes[j].width,faces[i].y + eyes[j].y + eyes[j].height) , Scalar(255,255,255), 2, 8, 0 );
-
+                /*
                 Point eyeLoc;
                 eyeLoc=findEyeCenter(faceROI,eyes[j],"hello");
 
@@ -207,7 +207,10 @@ if(left){
             }
             flip(imgs[0], imgs[0], 1);
 
-            imshow("eyes_detect",imgs[0]);   
+            char str[] = {(char)(j), '\0'};
+
+            imshow("eyes_detect",imgs[0]);
+            imshow(str, frame_gray(eyes[j]));
 
           }
 
