@@ -10,6 +10,15 @@
 using namespace dlib;
 using namespace std;
 
+double gradientThresh;
+
+double computeDynamicThreshold(const cv::Mat &mat, double stdDevFactor) {
+  cv::Scalar stdMagnGrad, meanMagnGrad;
+  meanStdDev(mat, meanMagnGrad, stdMagnGrad);
+  double stdDev = stdMagnGrad[0] / sqrt(mat.rows*mat.cols);
+  return stdDevFactor * stdDev + meanMagnGrad[0];
+}
+
 double scalarProduct(std::vector<double> vec1, std::vector<double> vec2) {
     double dot = 0;
 
@@ -29,8 +38,8 @@ void getVectorGradient(cv::Mat roi_eye, int x, int y, std::vector<double>& grad)
     int cols = roi_eye.cols;
 
     if(x > 0 && x < cols && y > 0 && y < rows) {
-        grad.push_back(roi_eye.at<uchar>(x+1, y) - roi_eye.at<uchar>(x-1, y));
-        grad.push_back(roi_eye.at<uchar>(x, y+1) - roi_eye.at<uchar>(x, y-1));
+        grad.push_back((roi_eye.at<uchar>(x+1, y) - roi_eye.at<uchar>(x-1, y)) / 2.0);
+        grad.push_back((roi_eye.at<uchar>(x, y+1) - roi_eye.at<uchar>(x, y-1)) / 2.0);
     }
     else {
         grad.push_back(0);
@@ -59,27 +68,48 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
     int rows = roi_eye.rows;
     int cols = roi_eye.cols;
 
-    for(int i=0;i<cols;i++) {
-        for(int j=0;j<rows;j++) {
-            if(c.x == i && c.y == j) {
+    cv::Mat grad_storage = cv::Mat::zeros(rows, cols, CV_64F);
+
+    for(int i=0;i<rows;i++) {
+        double *grad_storage_row = grad_storage.ptr<double>(i);
+        for(int j=0;j<cols;j++) {
+            cv::Point xi = cv::Point(j,i);
+            if(c.x == j && c.y == i) {
                 continue;
             }
             else {
-                cv::Point xi = cv::Point(i,j);
-                std::vector<double> di, di_unit, gi;
+                std::vector<double> gi;
+                getVectorGradient(roi_eye, xi.x, xi.y, gi);
+                grad_storage_row[j] = vectorMagnitude(gi);
+            }
+        }
+    }
 
-                di.push_back(xi.x - c.x);
-                di.push_back(xi.y - c.y);
+    gradientThresh = computeDynamicThreshold(grad_storage, 50.0);
 
-                double mag = vectorMagnitude(di);
+    for(int i=0;i<rows;i++) {
+        for(int j=0;j<cols;j++) {
+            if(c.x == j && c.y == i) {
+                continue;
+            }
+            else {
+                cv::Point xi = cv::Point(j,i);
+                std::vector<double> gi;
 
-                makeUnitVector(di, mag, di_unit);
                 getVectorGradient(roi_eye, xi.x, xi.y, gi);
 
-                double dot_product = std::max(0.0, scalarProduct(di_unit, gi));
-                //std::cout<<di.size()<<":";
-                //std::cout<<di_unit[0]<<","<<di_unit[1]<<" ";
-                score += (((int)(roi_eye.at<uchar>(i,j)))*dot_product*dot_product)/255.0;
+                if(vectorMagnitude(gi) > gradientThresh) {
+                    std::vector<double> di, di_unit;
+
+                    di.push_back(xi.x - c.x);
+                    di.push_back(xi.y - c.y);
+
+                    double mag = vectorMagnitude(di);
+
+                    makeUnitVector(di, mag, di_unit);
+                    double dot_product = std::max(0.0, scalarProduct(di_unit, gi));
+                    score += ((255 - (int)(roi_eye.at<uchar>(j,i)))*dot_product)/255.0;
+                }
             }
         }
     }
@@ -97,10 +127,10 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
 
     cv::Mat mask(rows, cols, CV_64F);
     cv::Mat roi_eye_clone;
+    cv::Mat grad_storage;
 
-
-    Canny( roi_eye, roi_eye_clone, 30, 30, 3 );
-    //roi_eye.copyTo(roi_eye_clone);
+    //Canny( roi_eye, roi_eye_clone, 30, 30, 3 );
+    roi_eye.copyTo(roi_eye_clone);
 
     for(int i=0;i<rows;i++) {
 
@@ -116,11 +146,15 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
     double minVal, maxVal;
     cv::Point minLoc, maxLoc;
 
-    cv::minMaxLoc(mask, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
+    cv::minMaxLoc(mask, NULL, &maxVal, NULL, &maxLoc, cv::Mat());
 
     //std::cout<<maxLoc<<std::endl;
-
+    std::cout<<maxVal<<"\t";
     return maxLoc;
+}
+
+void preprocessROI(cv::Mat& roi_eye) {
+    //GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
 }
 
 int main()
@@ -210,9 +244,11 @@ int main()
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
                 //std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
 
+                preprocessROI(roi_left_eye);
+
                 cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
 
-                cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(255), -1, 8, 0 );
+                cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
                 //std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
             }
@@ -246,5 +282,3 @@ int main()
         cout << e.what() << endl;
     }
 }
-
-
