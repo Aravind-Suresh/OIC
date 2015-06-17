@@ -6,11 +6,49 @@
 #include <dlib/gui_widgets.h>
 #include <math.h>
 #include <stdlib.h>
+#include <queue>
 
 using namespace dlib;
 using namespace std;
 
 double gradientThresh;
+
+bool inMat(cv::Point p,int rows,int cols) {
+  return p.x >= 0 && p.x < cols && p.y >= 0 && p.y < rows;
+}
+
+bool floodShouldPushPoint(const cv::Point &np, const cv::Mat &mat) {
+  return inMat(np, mat.rows, mat.cols);
+}
+
+cv::Mat floodKillEdges(cv::Mat &mat) {
+  cv::rectangle(mat,cv::Rect(0,0,mat.cols,mat.rows),255);
+  
+  cv::Mat mask(mat.rows, mat.cols, CV_8U, 255);
+  std::queue<cv::Point> toDo;
+  toDo.push(cv::Point(0,0));
+  while (!toDo.empty()) {
+    cv::Point p = toDo.front();
+    toDo.pop();
+    if (mat.at<float>(p) == 0.0f) {
+      continue;
+
+    // add in every direction
+    cv::Point np(p.x + 1, p.y); // right
+    if (floodShouldPushPoint(np, mat)) toDo.push(np);
+    np.x = p.x - 1; np.y = p.y; // left
+    if (floodShouldPushPoint(np, mat)) toDo.push(np);
+    np.x = p.x; np.y = p.y + 1; // down
+    if (floodShouldPushPoint(np, mat)) toDo.push(np);
+    np.x = p.x; np.y = p.y - 1; // up
+    if (floodShouldPushPoint(np, mat)) toDo.push(np);
+    // kill it
+    mat.at<float>(p) = 0.0f;
+    mask.at<uchar>(p) = 0;
+}
+}
+return mask;
+}
 
 double computeDynamicThreshold(const cv::Mat &mat, double stdDevFactor) {
   cv::Scalar stdMagnGrad, meanMagnGrad;
@@ -143,12 +181,22 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
         }
     }
 
-    double minVal, maxVal;
+    double minVal, maxVal = 0;
     cv::Point minLoc, maxLoc;
-
     cv::minMaxLoc(mask, NULL, &maxVal, NULL, &maxLoc, cv::Mat());
 
-    //std::cout<<maxLoc<<std::endl;
+    double numGradients = (rows*cols);
+    cv::Mat mask_convert;
+    mask.convertTo(mask_convert, CV_32F,1.0/numGradients);
+
+    cv::Mat floodClone;
+    double floodThresh = maxVal * 0.97;
+    cv::threshold(mask_convert, floodClone, floodThresh, 0.0f, cv::THRESH_TOZERO);
+    
+    cv::Mat mask_flood = floodKillEdges(floodClone);
+    
+    cv::minMaxLoc(mask_flood, NULL,&maxVal,NULL,&maxLoc,mask_flood);
+
     std::cout<<maxVal<<"\t";
     return maxLoc;
 }
@@ -244,12 +292,15 @@ int main()
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
                 //std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
 
-                preprocessROI(roi_left_eye);
+                //preprocessROI(roi_left_eye);
 
-                cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
+                //cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
 
-                cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
+                //cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
                 //std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
+
+
+                
 
             }
 
