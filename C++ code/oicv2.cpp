@@ -4,6 +4,8 @@
 #include <dlib/image_processing/frontal_face_detector.h>
 #include <dlib/image_processing/render_face_detections.h>
 #include <dlib/gui_widgets.h>
+#include <math.h>
+#include <stdlib.h>
 
 using namespace dlib;
 using namespace std;
@@ -49,7 +51,7 @@ double vectorMagnitude(std::vector<double> vec) {
         mag += vec[i]*vec[i];
     }
 
-    return mag;
+    return sqrt(mag);
 }
 
 double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
@@ -74,8 +76,8 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
                 makeUnitVector(di, mag, di_unit);
                 getVectorGradient(roi_eye, xi.x, xi.y, gi);
 
-                double dot_product = scalarProduct(di_unit, gi);
-                score += dot_product;
+                double dot_product = std::max(0.0, scalarProduct(di_unit, gi));
+                score += ((int)(roi_eye.at<uchar>(i,j)))*dot_product*dot_product;
             }
         }
     }
@@ -86,7 +88,13 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
 cv::Point getPupilCoordinates(cv::Mat roi_eye) {
     int rows = roi_eye.rows;
     int cols = roi_eye.cols;
+
+    std::cout<<"roi_eye dim : "<<rows<<","<<cols<<std::endl;
+
     cv::Mat mask(rows, cols, CV_64F);
+    cv::Mat roi_eye_clone;
+
+    roi_eye.copyTo(roi_eye_clone);
 
     for(int i=0;i<rows;i++) {
 
@@ -95,7 +103,7 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
 
         for(int j=0;j<cols;j++) {
             cv::Point c = cv::Point(i,j);
-            roi_eye_row[j] = getAccumulatorScore(roi_eye, c);
+            mask_row[j] = getAccumulatorScore(roi_eye_clone, c);
         }
     }
 
@@ -103,6 +111,8 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
     cv::Point minLoc, maxLoc;
 
     cv::minMaxLoc(mask, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
+
+    std::cout<<maxLoc<<std::endl;
 
     return maxLoc;
 }
@@ -112,7 +122,7 @@ int main()
     try
     {
         cv::VideoCapture cap(0);
-        image_window win, win_points, win_2, win_3, win_4;
+        image_window win, win_points, win_2, win_4;
 
         frontal_face_detector detector = get_frontal_face_detector();
         shape_predictor pose_model;
@@ -192,10 +202,12 @@ int main()
                 cv::bitwise_and(imgs[4], imgs[1], imgs[2]);
 
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
+                //std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
 
                 cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
 
                 cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar( 255, 0, 0 ), -1, 8, 0 );
+                //std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
             }
 
@@ -208,9 +220,9 @@ int main()
 
             win_2.clear_overlay();
             win_2.set_image(cv_image<unsigned char>(imgs[2]));
-
+/*
             win_3.clear_overlay();
-            win_3.set_image(cv_image<bgr_pixel>(imgs[3]));
+            win_3.set_image(cv_image<bgr_pixel>(imgs[3]));*/
 
             win_4.clear_overlay();
             win_4.set_image(cv_image<unsigned char>(imgs[5]));
