@@ -77,10 +77,14 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
                 getVectorGradient(roi_eye, xi.x, xi.y, gi);
 
                 double dot_product = std::max(0.0, scalarProduct(di_unit, gi));
-                score += ((int)(roi_eye.at<uchar>(i,j)))*dot_product*dot_product;
+                //std::cout<<di.size()<<":";
+                //std::cout<<di_unit[0]<<","<<di_unit[1]<<" ";
+                score += (((int)(roi_eye.at<uchar>(i,j)))*dot_product*dot_product)/255.0;
             }
         }
     }
+
+    //std::cout<<score<<" ";
 
     return ((double)(score)/(rows*cols));
 }
@@ -89,12 +93,14 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
     int rows = roi_eye.rows;
     int cols = roi_eye.cols;
 
-    std::cout<<"roi_eye dim : "<<rows<<","<<cols<<std::endl;
+    //std::cout<<"roi_eye dim : "<<rows<<","<<cols<<std::endl;
 
     cv::Mat mask(rows, cols, CV_64F);
     cv::Mat roi_eye_clone;
 
-    roi_eye.copyTo(roi_eye_clone);
+
+    Canny( roi_eye, roi_eye_clone, 30, 30, 3 );
+    //roi_eye.copyTo(roi_eye_clone);
 
     for(int i=0;i<rows;i++) {
 
@@ -112,7 +118,7 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
 
     cv::minMaxLoc(mask, &minVal, &maxVal, &minLoc, &maxLoc, cv::Mat());
 
-    std::cout<<maxLoc<<std::endl;
+    //std::cout<<maxLoc<<std::endl;
 
     return maxLoc;
 }
@@ -206,7 +212,7 @@ int main()
 
                 cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
 
-                cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar( 255, 0, 0 ), -1, 8, 0 );
+                cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(255), -1, 8, 0 );
                 //std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
             }
