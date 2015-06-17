@@ -212,8 +212,8 @@ int main()
             win_3.clear_overlay();
             win_3.set_image(cv_image<bgr_pixel>(imgs[3]));
 
-            win_4.clear_overlay();
-            win_4.set_image(cv_image<unsigned char>(imgs[5]));
+            // win_4.clear_overlay();
+            // win_4.set_image(cv_image<unsigned char>(imgs[5]));
         }
     }
     catch(serialization_error& e)
