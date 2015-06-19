@@ -344,10 +344,11 @@ int main()
 
                 cv::Point pupil_left_eye = findEyeCenter(roi_left_eye,cv::boundingRect(vec_pts_left_eye),"hello");
 
-                const std::vector face_tl_corner = faces[i].tl_corner();
-                cv::Point center= cv::Point(face_tl_corner.x + roi_left_eye_rect.x+pupil_left_eye.x,face_tl_corner.y + roi_left_eye_rect.y+pupil_left_eye.y);
+                //const Point face_tl_corner = faces[i].tl_corner();
+
+                //cv::Point center= cv::Point(faces[i].tl_corner().x() + roi_left_eye_rect.x+pupil_left_eye.x,faces[i].tl_corner().y() + roi_left_eye_rect.y+pupil_left_eye.y);
                 
-                cv::circle( imgs[5], center, 3, cv::Scalar(255), -1, 8, 0 );
+                cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
                 // std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
 
