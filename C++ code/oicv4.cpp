@@ -239,7 +239,7 @@ cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye, string debugWindow) {
 
 
 void preprocessROI(cv::Mat& roi_eye) {
-    //GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
+    GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
     equalizeHist( roi_eye, roi_eye );
 }
 void showImages(int e ,int l, int h, std::vector<cv::Mat> imgs) {
