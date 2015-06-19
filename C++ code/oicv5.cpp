@@ -14,10 +14,10 @@ using namespace std;
 
 
 bool comparatorContourAreas ( cv::vector<cv::Point> c1, cv::vector<cv::Point> c2 ) {
-	double i = fabs( contourArea(cv::Mat(c1)) );
-	double j = fabs( contourArea(cv::Mat(c2)) );
-	return ( i < j );
-}	
+    double i = fabs( contourArea(cv::Mat(c1)) );
+    double j = fabs( contourArea(cv::Mat(c2)) );
+    return ( i < j );
+}   
 
 int main()
 {
@@ -33,14 +33,14 @@ int main()
         std::vector<cv::Mat> imgs(10);
         cv::Mat temp, temp2;
 
-		cv::vector<int> row(5,1);
-		cv::vector<cv::vector<int> > kernelOpen(5,row);
+        cv::vector<int> row(5,1);
+        cv::vector<cv::vector<int> > kernelOpen(5,row);
 
         cv::vector<cv::vector<cv::Point> > contours;
-		cv::vector<cv::Vec4i> hierarchy;
+        cv::vector<cv::Vec4i> hierarchy;
  
- 		int morph_size = 2;
-    	Mat element = getStructuringElement( MORPH_RECT, Size( 2*morph_size + 1, 2*morph_size+1 ), Point( morph_size, morph_size ) );
+        int morph_size = 2;
+        cv::Mat element = getStructuringElement( cv::MORPH_RECT, cv::Size( 2*morph_size + 1, 2*morph_size+1 ), cv::Point( morph_size, morph_size ) );
 
         while(!win.is_closed())
         {
@@ -119,38 +119,41 @@ int main()
                 cv::Mat roi_left_eye_temp1;
                 cv::Mat roi_left_eye_otsu;
                 cv::Mat roi_left_eye_otsu_open;
-				cv::Mat roi_left_eye_temp2 (roi_left_eye.rows, roi_left_eye.cols, CV_8UC1, cv::Scalar::all(0));;
-	            cv::Mat roi_left_eye_temp3 (roi_left_eye.rows, roi_left_eye.cols, CV_8UC1, cv::Scalar::all(0));;
-	            roi_left_eye.copyTo(roi_left_eye_temp1);
+                cv::Mat roi_left_eye_temp2 (roi_left_eye.rows, roi_left_eye.cols, CV_8UC1, cv::Scalar::all(0));;
+                cv::Mat roi_left_eye_temp3 (roi_left_eye.rows, roi_left_eye.cols, CV_8UC1, cv::Scalar::all(0));;
+                roi_left_eye.copyTo(roi_left_eye_temp1);
                 //preprocessROI(roi_left_eye_temp);
  
 //compute otsu threshold of eye roi
 
-     			cv::threshold(roi_left_eye_temp1, roi_left_eye_otsu, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
+                cv::threshold(roi_left_eye_temp1, roi_left_eye_otsu, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
 
 //compute opening of otsu image                
                 //cv::morphologyEx(roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, kernelOpen, cv::Point(0,0), 1, cv::BORDER_CONSTANT);
-     			morphologyEx( roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, element );
+                morphologyEx( roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, element );
 
 //compute largest contour
-				cv::findContours(roi_left_eye_otsu_open, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
-		        sort(contours.begin(),contours.end(),comparatorContourAreas);
+                cv::findContours(roi_left_eye_otsu_open, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
+                sort(contours.begin(),contours.end(),comparatorContourAreas);
 
-                cv::drawContours( roi_left_eye_temp2, contours, contours.size()-1, 	cv::Scalar (255, 0, 0 ), CV_FILLED, 8, hierarchy );
-				cv::drawContours( roi_left_eye_temp3, contours, contours.size()-1, 	cv::Scalar (255, 0, 0 ), CV_RETR_LIST, 8, hierarchy );
+                cv::drawContours( roi_left_eye_temp2, contours, contours.size()-1,  cv::Scalar (255, 0, 0 ), CV_FILLED, 8, hierarchy );
+                cv::drawContours( roi_left_eye_temp3, contours, contours.size()-1,  cv::Scalar (255, 0, 0 ), CV_RETR_LIST, 8, hierarchy );
 
+                cout<<(contours[contours.size()-1]).size()<<endl;
 //least fit the contour
+                if((contours[contours.size()-1]).size()>4)
+               { 
 
-				cv::RotatedRect rRect = fitEllipse( contours[contours.size()-1]);
-				cv::Point2f vertices[4];
-				rRect.points(vertices);
-				
-				cv::Point pupil_left_eye = cv::Point((vertices[0].x + vertices[1].x + vertices[2].x + vertices[3].x)/4,(vertices[0].y + vertices[1].y + vertices[2].y + vertices[3].y)/4);
+                cv::RotatedRect rRect = fitEllipse( contours[contours.size()-1]);
+                cv::Point2f vertices[4];
+                rRect.points(vertices);
+                
+                cv::Point pupil_left_eye = cv::Point((vertices[0].x + vertices[1].x + vertices[2].x + vertices[3].x)/4,(vertices[0].y + vertices[1].y + vertices[2].y + vertices[3].y)/4);
 
 
                 cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
                 // std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
-
+                }
 
                 
 
