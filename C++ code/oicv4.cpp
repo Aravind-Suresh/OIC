@@ -238,6 +238,10 @@ cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye, string debugWindow) {
 }
 
 
+void preprocessROI(cv::Mat& roi_eye) {
+    //GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
+    equalizeHist( roi_eye, roi_eye );
+}
 void showImages(int e ,int l, int h, std::vector<cv::Mat> imgs) {
   for(int i=l;i<=h;i++) {
     char str[2];
@@ -337,13 +341,13 @@ int main()
 
                 cv::Rect roi_left_eye_rect = cv::boundingRect(vec_pts_left_eye);
 
-                equalizeHist( imgs[5], imgs[5] );
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
                 // std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
+                cv::Mat roi_left_eye_temp;
+                roi_left_eye.copyTo(roi_left_eye_temp);
+                preprocessROI(roi_left_eye_temp);
 
-                //preprocessROI(roi_left_eye);
-
-                cv::Point pupil_left_eye = findEyeCenter(roi_left_eye,cv::boundingRect(vec_pts_left_eye),"hello");
+                cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp,cv::boundingRect(vec_pts_left_eye),"hello");
 
                 //const Point face_tl_corner = faces[i].tl_corner();
 
