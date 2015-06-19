@@ -38,7 +38,9 @@ int main()
 
         cv::vector<cv::vector<cv::Point> > contours;
 		cv::vector<cv::Vec4i> hierarchy;
-
+ 
+ 		int morph_size = 2;
+    	Mat element = getStructuringElement( MORPH_RECT, Size( 2*morph_size + 1, 2*morph_size+1 ), Point( morph_size, morph_size ) );
 
         while(!win.is_closed())
         {
@@ -127,7 +129,8 @@ int main()
      			cv::threshold(roi_left_eye_temp1, roi_left_eye_otsu, 0, 255, CV_THRESH_BINARY + CV_THRESH_OTSU);
 
 //compute opening of otsu image                
-                cv::morphologyEx(roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, kernelOpen, cv::Point(-1,-1), 1, cv::BORDER_CONSTANT);
+                //cv::morphologyEx(roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, kernelOpen, cv::Point(0,0), 1, cv::BORDER_CONSTANT);
+     			morphologyEx( roi_left_eye_otsu, roi_left_eye_otsu_open, CV_MOP_OPEN, element );
 
 //compute largest contour
 				cv::findContours(roi_left_eye_otsu_open, contours, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_SIMPLE);
