@@ -337,6 +337,7 @@ int main()
 
                 cv::Rect roi_left_eye_rect = cv::boundingRect(vec_pts_left_eye);
 
+                equalizeHist( imgs[5], imgs[5] );
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
                 // std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
 
