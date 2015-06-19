@@ -31,6 +31,7 @@ char* getWindowName(char* str, int i) {
 	return strcat(str, win_name);
 }
 
+
 int main(int argc, char** argv) {
 
 	Mat img_gray = imread(argv[1], CV_LOAD_IMAGE_GRAYSCALE);
