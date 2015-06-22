@@ -518,8 +518,8 @@ int main(int argc, char **argv) {
 					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
 				}
 
-				cv::Point rect_center = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
-                cv::Rect roi_left_eye_rect(rect_center.x - 15, rect_center.y - 18, 35, 30);// = cv::boundingRect(vec_pts_left_eye);
+				cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
+                cv::Rect roi_left_eye_rect(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);// = cv::boundingRect(vec_pts_left_eye);
                 
                 cv::Mat roi_left_eye = temp(roi_left_eye_rect);
                 cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
@@ -528,8 +528,8 @@ int main(int argc, char **argv) {
                 cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
                 cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
-                rect_center = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
-                cv::Rect roi_right_eye_rect(rect_center.x - 15, rect_center.y - 18, 35, 30);// = cv::boundingRect(vec_pts_right_eye);
+                cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
+                cv::Rect roi_right_eye_rect(rect_center_right_eye.x - 15, rect_center_right_eye.y - 18, 35, 30);// = cv::boundingRect(vec_pts_right_eye);
 
                 cv::Mat roi_right_eye = temp(roi_right_eye_rect);
                 cv::cvtColor(roi_right_eye, roi_right_eye_temp, CV_BGR2GRAY);
