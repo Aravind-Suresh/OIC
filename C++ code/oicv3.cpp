@@ -204,9 +204,9 @@ struct FacePose {
 int main(int argc, char **argv) {
 	try
 	{
-		/*Rm = std::atoi(argv[1])/100.0;
+		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
-		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn;*/
+		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn;
 
 		cv::VideoCapture cap(0);
 		image_window win;
