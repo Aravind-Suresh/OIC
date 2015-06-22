@@ -111,7 +111,7 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
     for(int i=0;i<rows;i++) {
         double *grad_storage_row = grad_storage.ptr<double>(i);
         for(int j=0;j<cols;j++) {
-            cv::Point xi = cv::Point(j,i);
+            cv::Point xi = cv::Point(i,j);
             if(c.x == j && c.y == i) {
                 continue;
             }
@@ -152,7 +152,7 @@ double getAccumulatorScore(cv::Mat roi_eye, cv::Point c) {
         }
     }
 
-    //std::cout<<score<<" ";
+    std::cout<<score<<" ";
 
     return ((double)(score)/(rows*cols));
 }
@@ -203,7 +203,10 @@ cv::Point getPupilCoordinates(cv::Mat roi_eye) {
 
 void preprocessROI(cv::Mat& roi_eye) {
     //GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
+    //equalizeHist( roi_eye, roi_eye );
+
 }
+
 
 int main()
 {
@@ -290,14 +293,14 @@ int main()
                 cv::bitwise_and(imgs[4], imgs[1], imgs[2]);
 
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
-                //std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
+                // std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
 
-                //preprocessROI(roi_left_eye);
+                preprocessROI(roi_left_eye);
 
-                //cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
+                cv::Point pupil_left_eye = getPupilCoordinates(roi_left_eye);
 
-                //cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
-                //std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
+                cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
+                // std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
 
                 
@@ -317,8 +320,8 @@ int main()
             win_3.clear_overlay();
             win_3.set_image(cv_image<bgr_pixel>(imgs[3]));*/
 
-            // win_4.clear_overlay();
-            // win_4.set_image(cv_image<unsigned char>(imgs[5]));
+            win_4.clear_overlay();
+            win_4.set_image(cv_image<unsigned char>(imgs[5]));
         }
     }
     catch(serialization_error& e)
@@ -333,3 +336,7 @@ int main()
         cout << e.what() << endl;
     }
 }
+
+
+
+

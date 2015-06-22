@@ -30,7 +30,7 @@ void getVerticalEdges(cv::Mat grad_x,cv::Mat grad_y,cv::vector<cv::Point>& edges
                 if (ang < 0)
                     ang = 360 + ang;
 
-                if(ang>80 && ang<100)
+                if(ang>87 && ang<93)
                     edges.push_back(cv::Point(j,i));
             }
 

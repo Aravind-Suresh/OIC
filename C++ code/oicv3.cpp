@@ -61,7 +61,7 @@ double get_angle_between(cv::Point pt1, cv::Point pt2)
 	return 360 - cvFastArctan(pt2.y - pt1.y, pt2.x - pt1.x);
 }
 
-void project_facial_pose(cv::Mat img, double normal[3], double sigma, double theta) {
+void draw_facial_normal(cv::Mat img, double normal[3], double sigma, double theta) {
 
 	cv::Point origin = cv::Point(50,50);
 	cv::Scalar colour = cv::Scalar(255);
@@ -201,20 +201,6 @@ struct FacePose {
 
 };
 
-void draw_facial_normal(cv::Mat& img, dlib::full_object_detection shape, FacePose* f) {
-
-	double del_x = 100*f->normal[0];
-	double del_y = 100*f->normal[1];
-
-	cv::line(img, cv::Point(shape.part(30).x(), shape.part(30).y()),
-		cv::Point(shape.part(30).x() + del_x, shape.part(30).y() + del_y), cv::Scalar(0), 3);
-
-	std::cout<<"magnitude : "<<vectorMagnitude(f->normal, 3)<<" ";
-	std::cout<<f->normal[0]<<", "<<f->normal[1]<<", "<<f->normal[2];
-	std::cout<<"  pitch "<<f->pitch*180.0/PI<<" , yaw  "<<f->yaw*180.0/PI<<std::endl;
-
-}
-
 int main(int argc, char **argv) {
 	try
 	{
@@ -272,9 +258,17 @@ int main(int argc, char **argv) {
 				cv::circle(temp, face_features->nose_tip, 2, cv::Scalar(255), 2, 4, 0);
 				*/
 
-				draw_facial_normal(temp, shapes[0], face_pose);
+				double del_x = 100*face_pose->normal[0];
+				double del_y = 100*face_pose->normal[1];
 
-				project_facial_pose(temp, face_pose->normal, face_pose->sigma, face_pose->theta);
+				cv::line(temp, cv::Point(shapes[0].part(30).x(), shapes[0].part(30).y()),
+					cv::Point(shapes[0].part(30).x() + del_x, shapes[0].part(30).y() + del_y), cv::Scalar(0), 3);
+
+				std::cout<<"magnitude : "<<vectorMagnitude(face_pose->normal, 3)<<" ";
+				std::cout<<face_pose->normal[0]<<", "<<face_pose->normal[1]<<", "<<face_pose->normal[2];
+				std::cout<<"  pitch "<<face_pose->pitch*180.0/PI<<" , yaw  "<<face_pose->yaw*180.0/PI<<std::endl;
+
+				draw_facial_normal(temp, face_pose->normal, face_pose->sigma, face_pose->theta);
 
 			//draw_crosshair(temp, pointer_2d_kalman, 7, 12);
 			//cv::circle(temp, pointer_2d, 7, CV_RGB(80,80,80), 2, 4, 0);

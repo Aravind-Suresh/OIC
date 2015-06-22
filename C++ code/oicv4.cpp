@@ -149,7 +149,7 @@ void testPossibleCentersFormula(int x, int y, const cv::Mat &weight,double gx, d
   }
 }
 
-cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye, string debugWindow) {
+cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye) {
   cv::Mat eyeROIUnscaled = eye_mat;
   cv::Mat eyeROI;
   scaleToFastSize(eyeROIUnscaled, eyeROI);
@@ -182,7 +182,6 @@ cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye, string debugWindow) {
     }
   }
   
-  //imshow(debugWindow,gradientX);
   
   //-- Create a blurred and inverted image for weighting
   cv::Mat weight;
@@ -343,16 +342,13 @@ int main()
 
                 cv::Mat roi_left_eye = imgs[5](cv::boundingRect(vec_pts_left_eye));
                 // std::cout<<"roi_left_eye dim : "<<roi_left_eye.rows<<","<<roi_left_eye.cols<<std::endl;
+                
                 cv::Mat roi_left_eye_temp;
                 roi_left_eye.copyTo(roi_left_eye_temp);
                 preprocessROI(roi_left_eye_temp);
 
-                cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp,cv::boundingRect(vec_pts_left_eye),"hello");
+                cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp,cv::boundingRect(vec_pts_left_eye));
 
-                //const Point face_tl_corner = faces[i].tl_corner();
-
-                //cv::Point center= cv::Point(faces[i].tl_corner().x() + roi_left_eye_rect.x+pupil_left_eye.x,faces[i].tl_corner().y() + roi_left_eye_rect.y+pupil_left_eye.y);
-                
                 cv::circle( roi_left_eye, pupil_left_eye, 3, cv::Scalar(255), -1, 8, 0 );
                 // std::cout<<"Left Pupil@ : "<<pupil_left_eye.x<<","<<pupil_left_eye.y<<std::endl;
 
