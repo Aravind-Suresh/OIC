@@ -397,7 +397,7 @@ struct FacePose {
 		theta = (abs(tau - symm_x)) * (PI/180.0);
 			//theta angle - angle between the symmetry axis and the image normal
 		sigma = find_sigma(d->nose_base_nose_tip_distance, d->mid_eye_mouth_distance, Rn, theta);
-		std::cout<<"symm : "<<symm_x<<" tau : "<<tau<<" theta : "<<theta<<" sigma : "<<sigma<<" ";
+		//std::cout<<"symm : "<<symm_x<<" tau : "<<tau<<" theta : "<<theta<<" sigma : "<<sigma<<" ";
 
 		normal[0] = (sin(sigma))*(cos((360 - tau)*(PI/180.0)));
 		normal[1] = (sin(sigma))*(sin((360 - tau)*(PI/180.0)));
@@ -470,6 +470,20 @@ cv::Mat get_rotation_matrix_z(double theta) {
 	return rot_matrix;
 }
 
+void makeUnitVector(std::vector<double> vec, std::vector<double>& unit_vector) {
+	
+	double magnitude = 0;
+
+	for(int i=0;i<vec.size();i++) {
+		magnitude += vec[i]*vec[i];
+	}
+	magnitude = sqrt(magnitude);
+
+    for(int i=0;i<vec.size();i++) {
+        unit_vector[i] = (((double)(vec[i])/magnitude));
+    }
+}
+
 void get_rotated_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
 
 	double temp = vec[2];
@@ -494,8 +508,8 @@ void compute_vector_sum(std::vector<double> vec1, std::vector<double> vec2, std:
 void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye, cv::Mat& img) {
 
 	//Reducing the size so as to fit it properly
-	double del_x = vec_gaze[0];
-	double del_y = vec_gaze[1];
+	double del_x = 100*vec_gaze[0];
+	double del_y = 100*vec_gaze[1];
 
 	cv::line(img, cv::Point(pt.x + roi_eye.x, pt.y + roi_eye.y), cv::Point(pt.x + del_x + roi_eye.x, pt.y + del_y + roi_eye.y), cv::Scalar(255, 255, 255), 2);
 }
@@ -592,15 +606,22 @@ int main(int argc, char **argv) {
                 vec_normal[1] = (face_pose->normal[1]*Nf);
                 vec_normal[2] = (face_pose->normal[2]*Nf);
 
-                //Make this unit vector and then apply weight only to Normal
+                std::cout<<vec_normal[0]<<endl;
+
                 vec_pupil_left_proj[0] = (pupil_left_eye.x - rect_center_left_eye.x)/10.0;
                 vec_pupil_left_proj[1] = (pupil_left_eye.y - rect_center_left_eye.y)/10.0;
                 vec_pupil_left_proj[2] = (0);
 
                 get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
+
+                //Make this unit vector and then apply weight only to Normal
+                makeUnitVector(vec_pupil_left, vec_pupil_left);
+
                 compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
 
                 //Make vec_gaze a unit vector before this step
+                makeUnitVector(vec_pupil_left_proj, vec_pupil_left_proj);
+
                 draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);
 
             }
