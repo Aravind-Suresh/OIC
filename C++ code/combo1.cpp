@@ -12,6 +12,7 @@
 double PI = 3.141592653589;
 double Rn = 0.5;
 double Rm = 0.5;
+double Nf = 10;
 
 using namespace dlib;
 using namespace std;
@@ -23,14 +24,9 @@ cv::Point unscalePoint(cv::Point p, cv::Rect origSize) {
 	return cv::Point(x,y);
 }
 
-
-
 void scaleToFastSize(const cv::Mat &src,cv::Mat &dst) {
 	cv::resize(src, dst, cv::Size(50,(((float)50)/src.cols) * src.rows));
 }
-
-
-
 
 cv::Mat computeMatXGradient(const cv::Mat &mat) {
 	cv::Mat out(mat.rows,mat.cols,CV_64F);
@@ -49,18 +45,12 @@ cv::Mat computeMatXGradient(const cv::Mat &mat) {
 	return out;
 }
 
-
-
-
 double computeDynamicThreshold(const cv::Mat &mat, double stdDevFactor) {
 	cv::Scalar stdMagnGrad, meanMagnGrad;
 	meanStdDev(mat, meanMagnGrad, stdMagnGrad);
 	double stdDev = stdMagnGrad[0] / sqrt(mat.rows*mat.cols);
 	return stdDevFactor * stdDev + meanMagnGrad[0];
 }
-
-
-
 
 cv::Mat matrixMagnitude(const cv::Mat &matX, const cv::Mat &matY) {
 	cv::Mat mags(matX.rows,matX.cols,CV_64F);
@@ -76,22 +66,13 @@ cv::Mat matrixMagnitude(const cv::Mat &matX, const cv::Mat &matY) {
 	return mags;
 }
 
-
-
-
 bool inMat(cv::Point p,int rows,int cols) {
 	return p.x >= 0 && p.x < cols && p.y >= 0 && p.y < rows;
 }
 
-
-
-
 bool floodShouldPushPoint(const cv::Point &np, const cv::Mat &mat) {
 	return inMat(np, mat.rows, mat.cols);
 }
-
-
-
 
 cv::Mat floodKillEdges(cv::Mat &mat) {
 	cv::rectangle(mat,cv::Rect(0,0,mat.cols,mat.rows),255);
@@ -120,9 +101,6 @@ cv::Mat floodKillEdges(cv::Mat &mat) {
 }
 return mask;
 }
-
-
-
 
 void testPossibleCentersFormula(int x, int y, const cv::Mat &weight,double gx, double gy, cv::Mat &out) {
   // for all possible centers
@@ -240,11 +218,11 @@ cv::Point findEyeCenter(cv::Mat eye_mat,cv::Rect eye, string debugWindow) {
 
 }
 
-
 void preprocessROI(cv::Mat& roi_eye) {
 	GaussianBlur(roi_eye, roi_eye, cv::Size(3,3), 0, 0);
 	equalizeHist( roi_eye, roi_eye );
 }
+
 void showImages(int e ,int l, int h, std::vector<cv::Mat> imgs) {
 	for(int i=l;i<=h;i++) {
 		char str[2];
@@ -454,11 +432,80 @@ void draw_facial_normal(cv::Mat& img, dlib::full_object_detection shape, FacePos
 
 }
 
+double scalarProduct(std::vector<double> vec1, std::vector<double> vec2) {
+    double dot = 0;
+
+    if(vec1.size() != vec2.size()) {
+        return 0;
+    }
+
+    for(int i=0;i<vec1.size();i++) {
+        dot += vec1[i]*vec2[i];
+    }
+
+    return dot;
+}
+
+cv::Mat get_rotation_matrix_z(double theta) {
+	cv::Mat rot_matrix(3,3, CV_64F);
+
+	double sinx = sin(theta);
+	double cosx = cos(theta);
+
+	double* col = rot_matrix.ptr<double>(0);
+	col[0] = cosx;
+	col[1] = sinx;
+	col[2] = 0;
+
+	col = rot_matrix.ptr<double>(1);
+	col[0] = -sinx;
+	col[1] = cosx;
+	col[2] = 0;
+
+	col = rot_matrix.ptr<double>(2);
+	col[0] = 0;
+	col[1] = 0;
+	col[2] = 1;
+
+	return rot_matrix;
+}
+
+void get_rotated_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
+
+	double temp = vec[2];
+	temp = temp/sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+
+	double theta = acos(temp);
+
+	double sinx = sin(theta);
+	double cosx = cos(theta);
+
+	vec_rot[0] = (vec[0]*cosx - vec[1]*sinx);
+	vec_rot[1] = (vec[0]*sinx + vec[1]*cosx);
+	vec_rot[2] = (vec[2]);
+}
+
+void compute_vector_sum(std::vector<double> vec1, std::vector<double> vec2, std::vector<double>& vec_sum) {
+	vec_sum[0] = (vec1[0] + vec2[0]);
+	vec_sum[1] = (vec1[1] + vec2[1]);
+	vec_sum[2] = (vec1[2] + vec2[2]);
+}
+
+void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye, cv::Mat& img) {
+
+	//Reducing the size so as to fit it properly
+	double del_x = vec_gaze[0];
+	double del_y = vec_gaze[1];
+
+	cv::line(img, cv::Point(pt.x + roi_eye.x, pt.y + roi_eye.y), cv::Point(pt.x + del_x + roi_eye.x, pt.y + del_y + roi_eye.y), cv::Scalar(255, 255, 255), 2);
+}
+
 int main(int argc, char **argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
-		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn;
+		Nf = std::atoi(argv[3])/100.0;
+		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<" Nf : "<<Nf<<endl;
 
 		cv::VideoCapture cap(0);
 		image_window win;
@@ -519,14 +566,14 @@ int main(int argc, char **argv) {
 				}
 
 				cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
-                cv::Rect roi_left_eye_rect(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);// = cv::boundingRect(vec_pts_left_eye);
+                cv::Rect roi_left_eye_rect/*(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_left_eye);
                 
                 cv::Mat roi_left_eye = temp(roi_left_eye_rect);
                 cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
 
                 preprocessROI(roi_left_eye_temp);
                 cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
-                cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
+                //cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
                 cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
                 cv::Rect roi_right_eye_rect(rect_center_right_eye.x - 15, rect_center_right_eye.y - 18, 35, 30);// = cv::boundingRect(vec_pts_right_eye);
@@ -538,6 +585,23 @@ int main(int argc, char **argv) {
                 cv::Point pupil_right_eye = findEyeCenter(roi_right_eye_temp, roi_left_eye_rect, "");
                 //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
                 cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
+
+                std::vector<double> vec_normal(3), vec_pupil_left_proj(3), vec_pupil_left(3), vec_pupil_right(3);
+
+                vec_normal[0] = (face_pose->normal[0]*Nf);
+                vec_normal[1] = (face_pose->normal[1]*Nf);
+                vec_normal[2] = (face_pose->normal[2]*Nf);
+
+                //Make this unit vector and then apply weight only to Normal
+                vec_pupil_left_proj[0] = (pupil_left_eye.x - rect_center_left_eye.x)/10.0;
+                vec_pupil_left_proj[1] = (pupil_left_eye.y - rect_center_left_eye.y)/10.0;
+                vec_pupil_left_proj[2] = (0);
+
+                get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
+                compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
+
+                //Make vec_gaze a unit vector before this step
+                draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);
 
             }
             win.clear_overlay();
