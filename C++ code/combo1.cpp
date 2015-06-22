@@ -426,9 +426,9 @@ void draw_facial_normal(cv::Mat& img, dlib::full_object_detection shape, FacePos
 	cv::line(img, cv::Point(shape.part(30).x(), shape.part(30).y()),
 		cv::Point(shape.part(30).x() + del_x, shape.part(30).y() + del_y), cv::Scalar(0), 3);
 
-	std::cout<<"magnitude : "<<vectorMagnitude(f->normal, 3)<<" ";
-	std::cout<<f->normal[0]<<", "<<f->normal[1]<<", "<<f->normal[2];
-	std::cout<<"  pitch "<<f->pitch*180.0/PI<<" , yaw  "<<f->yaw*180.0/PI<<std::endl;
+	//std::cout<<"magnitude : "<<vectorMagnitude(f->normal, 3)<<" ";
+	//std::cout<<f->normal[0]<<", "<<f->normal[1]<<", "<<f->normal[2];
+	//std::cout<<"  pitch "<<f->pitch*180.0/PI<<" , yaw  "<<f->yaw*180.0/PI<<std::endl;
 
 }
 
@@ -486,17 +486,19 @@ void makeUnitVector(std::vector<double> vec, std::vector<double>& unit_vector) {
 
 void get_rotated_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
 
-	double temp = vec[2];
+	double temp = vec[0];
 	temp = temp/sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 
 	double theta = acos(temp);
+	std::cout<<" theta-z : "<<theta<<" ";
 
 	double sinx = sin(theta);
 	double cosx = cos(theta);
 
-	vec_rot[0] = (vec[0]*cosx - vec[1]*sinx);
-	vec_rot[1] = (vec[0]*sinx + vec[1]*cosx);
-	vec_rot[2] = (vec[2]);
+	//Rotation about the X-axis
+	vec_rot[0] = vec[0];
+	vec_rot[1] = vec[1]*cosx - vec[2]*sinx;
+	vec_rot[2] = vec[1]*sinx + vec[2]*cosx;
 }
 
 void compute_vector_sum(std::vector<double> vec1, std::vector<double> vec2, std::vector<double>& vec_sum) {
@@ -518,7 +520,7 @@ int main(int argc, char **argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
-		Nf = std::atoi(argv[3])/100.0;
+		Nf = std::atoi(argv[3]);
 		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<" Nf : "<<Nf<<endl;
 
 		cv::VideoCapture cap(0);
@@ -531,6 +533,8 @@ int main(int argc, char **argv) {
 		frontal_face_detector detector = get_frontal_face_detector();
 		shape_predictor pose_model;
 		deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
+
+		std::vector<double> vec_normal(3), vec_pupil_left_proj(3), vec_pupil_left(3), vec_pupil_right(3);
 
 		while(!win.is_closed())	{
 			cv::Mat temp, temp2, roi_left_eye_temp, roi_right_eye_temp;
@@ -600,13 +604,11 @@ int main(int argc, char **argv) {
                 //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
                 cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
-                std::vector<double> vec_normal(3), vec_pupil_left_proj(3), vec_pupil_left(3), vec_pupil_right(3);
-
                 vec_normal[0] = (face_pose->normal[0]*Nf);
                 vec_normal[1] = (face_pose->normal[1]*Nf);
                 vec_normal[2] = (face_pose->normal[2]*Nf);
 
-                std::cout<<vec_normal[0]<<endl;
+                //std::cout<<vec_normal[0]<<endl;
 
                 vec_pupil_left_proj[0] = (pupil_left_eye.x - rect_center_left_eye.x)/10.0;
                 vec_pupil_left_proj[1] = (pupil_left_eye.y - rect_center_left_eye.y)/10.0;
@@ -620,7 +622,8 @@ int main(int argc, char **argv) {
                 compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
 
                 //Make vec_gaze a unit vector before this step
-                makeUnitVector(vec_pupil_left_proj, vec_pupil_left_proj);
+                makeUnitVector(vec_pupil_left, vec_pupil_left);
+                std::cout<<"final : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
 
                 draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);
 
