@@ -12,7 +12,7 @@
 double PI = 3.141592653589;
 double Rn = 0.5;
 double Rm = 0.5;
-double Nf = 10;
+double Cf_left = 10;
 
 using namespace dlib;
 using namespace std;
@@ -490,15 +490,33 @@ void get_rotated_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
 	temp = temp/sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
 
 	double theta = acos(temp);
+	std::cout<<" theta-x : "<<theta<<" ";
+
+	double sinx = sin(theta);
+	double cosx = cos(theta);
+/*
+	//Rotation about the X-axis
+	vec_rot[0] = vec[0];
+	vec_rot[1] = vec[1]*cosx - vec[2]*sinx;
+	vec_rot[2] = vec[1]*sinx + vec[2]*cosx;*/
+
+	vec_rot = vec;
+}
+
+void get_reverse_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
+	double temp = vec[0];
+	temp = temp/sqrt(vec[0]*vec[0] + vec[1]*vec[1] + vec[2]*vec[2]);
+
+	double theta = acos(temp);
 	std::cout<<" theta-z : "<<theta<<" ";
 
 	double sinx = sin(theta);
 	double cosx = cos(theta);
 
-	//Rotation about the X-axis
+	//Reverse - rotation about the X-axis
 	vec_rot[0] = vec[0];
-	vec_rot[1] = vec[1]*cosx - vec[2]*sinx;
-	vec_rot[2] = vec[1]*sinx + vec[2]*cosx;
+	vec_rot[1] = vec[1]*cosx + vec[2]*sinx;
+	vec_rot[2] = -vec[1]*sinx + vec[2]*cosx;
 }
 
 void compute_vector_sum(std::vector<double> vec1, std::vector<double> vec2, std::vector<double>& vec_sum) {
@@ -510,8 +528,8 @@ void compute_vector_sum(std::vector<double> vec1, std::vector<double> vec2, std:
 void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye, cv::Mat& img) {
 
 	//Reducing the size so as to fit it properly
-	double del_x = 100*vec_gaze[0];
-	double del_y = 100*vec_gaze[1];
+	double del_x = 70*vec_gaze[0];
+	double del_y = 70*vec_gaze[1];
 
 	cv::line(img, cv::Point(pt.x + roi_eye.x, pt.y + roi_eye.y), cv::Point(pt.x + del_x + roi_eye.x, pt.y + del_y + roi_eye.y), cv::Scalar(255, 255, 255), 2);
 }
@@ -520,8 +538,8 @@ int main(int argc, char **argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
-		Nf = std::atoi(argv[3]);
-		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<" Nf : "<<Nf<<endl;
+		//Nf = std::atoi(argv[3])/100.0;
+		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<endl;
 
 		cv::VideoCapture cap(0);
 		image_window win;
@@ -594,7 +612,7 @@ int main(int argc, char **argv) {
                 //cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
                 cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
-                cv::Rect roi_right_eye_rect(rect_center_right_eye.x - 15, rect_center_right_eye.y - 18, 35, 30);// = cv::boundingRect(vec_pts_right_eye);
+                cv::Rect roi_right_eye_rect/*(rect_center_right_eye.x - 15, rect_center_right_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_right_eye);
 
                 cv::Mat roi_right_eye = temp(roi_right_eye_rect);
                 cv::cvtColor(roi_right_eye, roi_right_eye_temp, CV_BGR2GRAY);
@@ -604,30 +622,50 @@ int main(int argc, char **argv) {
                 //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
                 cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
-                vec_normal[0] = (face_pose->normal[0]*Nf);
-                vec_normal[1] = (face_pose->normal[1]*Nf);
-                vec_normal[2] = (face_pose->normal[2]*Nf);
+               	Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
+               	 cv::Point(shape.part(45).x(), shape.part(45).y()));
+
+               	Cf_left = (12.5*Cf_left)/14.0;
+               	std::cout<<"Cf_left : "<<Cf_left<<" ";
+
+                vec_normal[0] = (face_pose->normal[0]*Cf_left);
+                vec_normal[1] = (face_pose->normal[1]*Cf_left);
+                vec_normal[2] = (face_pose->normal[2]*Cf_left);
 
                 //std::cout<<vec_normal[0]<<endl;
 
-                vec_pupil_left_proj[0] = (pupil_left_eye.x - rect_center_left_eye.x)/10.0;
-                vec_pupil_left_proj[1] = (pupil_left_eye.y - rect_center_left_eye.y)/10.0;
+                vec_pupil_left_proj[0] = (pupil_left_eye.x - (rect_center_left_eye.x - roi_left_eye_rect.x));
+                vec_pupil_left_proj[1] = (pupil_left_eye.y - (rect_center_left_eye.y - roi_left_eye_rect.y));
                 vec_pupil_left_proj[2] = (0);
 
-                get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
+                //get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
+                vec_pupil_left[0] = vec_pupil_left_proj[0];
+                vec_pupil_left[1] = vec_pupil_left_proj[1];
+                vec_pupil_left[2] = vec_pupil_left_proj[2];
 
                 //Make this unit vector and then apply weight only to Normal
-                makeUnitVector(vec_pupil_left, vec_pupil_left);
+                //makeUnitVector(vec_pupil_left, vec_pupil_left);
+                
+                std::cout<<"\nbefore : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
+                std::cout<<"normal : "<<vec_normal[0]<<", "<<vec_normal[1]<<", "<<vec_normal[2]<<endl;
 
                 compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
+/*
+                vec_pupil_left[0] += vec_normal[0];
+                vec_pupil_left[1] += vec_normal[1];
+                vec_pupil_left[2] += vec_normal[2];*/
 
                 //Make vec_gaze a unit vector before this step
                 makeUnitVector(vec_pupil_left, vec_pupil_left);
                 std::cout<<"final : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
-
-                draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);
-
+                /*std::vector<double> vec_temp(3);
+                get_reverse_vector(vec_pupil_left, vec_temp);
+                makeUnitVector(vec_temp, vec_temp);
+                draw_eye_gaze(pupil_left_eye, vec_temp, roi_left_eye_rect, temp);
+*/                
+                draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);	
             }
+            //cv::waitKey(0);
             win.clear_overlay();
             win.set_image(cimg);
             win.add_overlay(render_face_detections(shapes));
