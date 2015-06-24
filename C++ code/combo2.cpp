@@ -582,11 +582,14 @@ int main(int argc, char **argv) {
 			std::vector<cv::Point> eye_rightPupilPoints;
 			
 			cv::Point pupil_left_eye;
-			cv::Point pupil_right_eye 
+			cv::Point pupil_right_eye ;
+			cv::Point rect_center_left_eye ;
 
-			
 			std::vector<full_object_detection> shapes;
 			dlib::full_object_detection shape;
+			cv::Rect roi_left_eye_rect;
+
+			cv_image<bgr_pixel> cimg1(frame[1]);
 
 			for(int i=0; i<4; i++)
 		{
@@ -635,8 +638,8 @@ int main(int argc, char **argv) {
 					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
 				}
 
-				cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
-                cv::Rect roi_left_eye_rect/*(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_left_eye);
+				rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
+                roi_left_eye_rect/*(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_left_eye);
                 
                 roi_left_eye = temp(roi_left_eye_rect);
                 cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
@@ -661,8 +664,8 @@ int main(int argc, char **argv) {
 
 		}
 
-				pupil_left_eye = findAveragePupilPoint(std::vector<cv::Point> eye_leftPupilPoints);
-				pupil_right_eye = findAveragePupilPoint(std::vector<cv::Point> eye_rightPupilPoints);
+				// pupil_left_eye = findAveragePupilPoint(eye_leftPupilPoints);
+				// pupil_right_eye = findAveragePupilPoint(eye_rightPupilPoints);
 
                 //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
                 cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
@@ -713,7 +716,7 @@ int main(int argc, char **argv) {
             
             //cv::waitKey(0);
             win.clear_overlay();
-            win.set_image(cimg);
+            win.set_image(cimg1);
             win.add_overlay(render_face_detections(shapes));
         }
     }
