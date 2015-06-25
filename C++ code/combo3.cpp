@@ -640,6 +640,7 @@ int main(int argc, char **argv) {
 		vec_pupil_left[2] = 0;
 
 		cv::Point pt_temp1, pupil_left_eye(0,0), vt_temp1;
+		cv::Point2f sm_le;
 
 		/////// Kalman Filter initiated ////////
 		measurement.setTo(cv::Scalar(0));
@@ -724,7 +725,7 @@ int main(int argc, char **argv) {
 				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
 					cv::Point(shape.part(45).x(), shape.part(45).y()));
 
-				Cf_left = (12.5*Cf_left)/14.0;
+				Cf_left = (12.5*Cf_left)/(14.0*cos(face_pose->yaw));
 				std::cout<<"Cf_left : "<<Cf_left<<" ";
 
 				vec_normal[0] = (face_pose->normal[0]*Cf_left);
@@ -767,7 +768,9 @@ int main(int argc, char **argv) {
                 //draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);	
 
 
-
+                if(!floodShouldPushPoint(sm_le, roi_left_eye)) {
+                	k_i=0;
+                }
 
                 //////// Process the output gaze point using Kalman filter /////////
                 if(k_i==0) {
@@ -779,7 +782,7 @@ int main(int argc, char **argv) {
                 }
                 double vt_x_nw = pupil_left_eye.x - pt_temp1.x;
                 double vt_y_nw = pupil_left_eye.y - pt_temp1.y;
-                cv::Point2f sm_le = kalman_predict_correct(pupil_left_eye.x, pupil_left_eye.y, vt_x_nw, vt_y_nw, vt_x_nw - vt_temp1.x, vt_y_nw - vt_temp1.y);
+                sm_le = kalman_predict_correct(pupil_left_eye.x, pupil_left_eye.y, vt_x_nw, vt_y_nw, vt_x_nw - vt_temp1.x, vt_y_nw - vt_temp1.y);
 
                 kalman_predict_correct_3(vec_pupil_left, vec_temp1, sm_le_gaze);
                 std::cout<<"\nsm_le_gaze : "<<sm_le_gaze[0]<<", "<<sm_le_gaze[1]<<", "<<sm_le_gaze[2]<<std::endl;
