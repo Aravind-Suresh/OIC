@@ -534,9 +534,9 @@ void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye,
 	cv::line(img, cv::Point(pt.x + roi_eye.x, pt.y + roi_eye.y), cv::Point(pt.x + del_x + roi_eye.x, pt.y + del_y + roi_eye.y), cv::Scalar(255, 255, 255), 2);
 }
 
-cv::KalmanFilter KF3(6, 3, 0);
+cv::KalmanFilter KF3(6, 6, 0);
 cv::Mat_<float> state3(6, 1);
-cv::Mat_<float> measurement3(3,1);
+cv::Mat_<float> measurement3(6,1);
 
 void init_kalman_3(std::vector<double> vec) {
 
@@ -547,13 +547,10 @@ void init_kalman_3(std::vector<double> vec) {
 	KF3.statePre.at<float>(4) = 0;
 	KF3.statePre.at<float>(5) = 0;
 
-	/*KF3.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,1,0,0.5,0, 0,1,0,1,0,0.5, 0,0,1,0,1,0, 0,0,0,1,0,1, 0,0,0,0,1,0, 0,0,0,0,0,1);
-	KF3.measurementMatrix = *(cv::Mat_<float>(2, 6) << 1,0,1,0,0.5,0, 0,1,0,1,0,0.5);
-*/
-
-	KF3.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,     0,0,1,0,   0,0,0,1);
-	KF3.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3);
+	//TODO : change this matrix
+	KF3.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+	KF3.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
 
 	cv::setIdentity(KF3.measurementMatrix);
 	cv::setIdentity(KF3.processNoiseCov,cv::Scalar::all(1e-4));
@@ -561,11 +558,14 @@ void init_kalman_3(std::vector<double> vec) {
 	cv::setIdentity(KF3.errorCovPost, cv::Scalar::all(.1));  
 }
 
-void kalman_predict_correct_3(std::vector<double> vec, std::vector<double> vec_pred) {
+void kalman_predict_correct_3(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
 	cv::Mat prediction = KF3.predict();
 	measurement3(0) = vec[0];
 	measurement3(1) = vec[1];
 	measurement3(2) = vec[2];
+	measurement3(3) = vec[0] - old[0];
+	measurement3(4) = vec[1] - old[1];
+	measurement3(5) = vec[2] - old[2];
 
 	cv::Mat estimated = KF3.correct(measurement3);
 	vec_pred[0] = estimated.at<float>(0);
@@ -573,9 +573,9 @@ void kalman_predict_correct_3(std::vector<double> vec, std::vector<double> vec_p
 	vec_pred[2] = estimated.at<float>(2);
 }
 
-cv::KalmanFilter KF (4,2,0);
-cv::Mat_<float> state (4,1); 
-cv::Mat_<float> measurement (2,1);
+cv::KalmanFilter KF (6,6,0);
+cv::Mat_<float> state (6,1); 
+cv::Mat_<float> measurement (6,1);
 
 void init_kalman(double x, double y)
 {
@@ -584,22 +584,29 @@ void init_kalman(double x, double y)
 	KF.statePre.at<float>(1) = y;
 	KF.statePre.at<float>(2) = 0;
 	KF.statePre.at<float>(3) = 0;
+	KF.statePre.at<float>(4) = 0;
+	KF.statePre.at<float>(5) = 0;
 
-	KF.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,     0,0,1,0,   0,0,0,1);
-	KF.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3);
+	KF.transitionMatrix = *(cv::Mat_<float>(6,6) << 1,0,1,0,0.5,0,    0,1,0,1,0,0.5,     0,0,1,0,1,0,   0,0,0,1,0,1,  0,0,0,0,1,0,  0,0,0,0,0,1);
+	KF.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
 	cv::setIdentity(KF.measurementMatrix);
 	cv::setIdentity(KF.processNoiseCov,cv::Scalar::all(1e-4));
 	cv::setIdentity(KF.measurementNoiseCov,cv::Scalar::all(1e-1));
 	cv::setIdentity(KF.errorCovPost, cv::Scalar::all(.1));  
 }
 
-cv::Point2f kalman_predict_correct(double x, double y)
+cv::Point2f kalman_predict_correct(double x, double y, double vx, double vy, double ax, double ay)
 {
 	cv::Mat prediction = KF.predict();
 	cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
 	measurement(0) = x;
-	measurement(1) = y; 
+	measurement(1) = y;
+	measurement(2) = vx;
+	measurement(3) = vy;
+	measurement(4) = ax;
+	measurement(5) = ay;
+
 	cv::Mat estimated = KF.correct(measurement);
 	cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
 	return statePt;
@@ -624,6 +631,15 @@ int main(int argc, char **argv) {
 		deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
 
 		std::vector<double> vec_normal(3), vec_pupil_left_proj(3), vec_pupil_left(3), vec_pupil_right(3);
+
+		std::vector<double> vec_temp1(3), vec_temp2(3);
+		std::vector<double> sm_le_gaze(3);
+
+		vec_pupil_left[0] = 0;
+		vec_pupil_left[1] = 0;
+		vec_pupil_left[2] = 0;
+
+		cv::Point pt_temp1, pupil_left_eye(0,0), vt_temp1;
 
 		/////// Kalman Filter initiated ////////
 		measurement.setTo(cv::Scalar(0));
@@ -677,13 +693,21 @@ int main(int argc, char **argv) {
 				}
 
 				cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
-                cv::Rect roi_left_eye_rect/*(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_left_eye);
+				/*double conv_x = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
+				conv_x = conv_x/2.0;*/
+                cv::Rect roi_left_eye_rect/*(rect_center_left_eye.x - conv_x, rect_center_left_eye.y - conv_x, 2*conv_x, 2*conv_x);*/= cv::boundingRect(vec_pts_left_eye);
 
 				cv::Mat roi_left_eye = temp(roi_left_eye_rect);
 				cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
 
 				preprocessROI(roi_left_eye_temp);
-				cv::Point pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
+
+				vt_temp1.x = pupil_left_eye.x - pt_temp1.x;
+				vt_temp1.y = pupil_left_eye.y - pt_temp1.y;
+
+				pt_temp1 = pupil_left_eye;
+
+				pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
                 //cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
 				cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
@@ -695,7 +719,7 @@ int main(int argc, char **argv) {
 				preprocessROI(roi_right_eye_temp);
 				cv::Point pupil_right_eye = findEyeCenter(roi_right_eye_temp, roi_left_eye_rect, "");
                 //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
-				cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
+				cv::circle( roi_right_eye, pupil_right_eye, 9, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
 				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
 					cv::Point(shape.part(45).x(), shape.part(45).y()));
@@ -712,6 +736,8 @@ int main(int argc, char **argv) {
 				vec_pupil_left_proj[0] = (pupil_left_eye.x - (rect_center_left_eye.x - roi_left_eye_rect.x));
 				vec_pupil_left_proj[1] = (pupil_left_eye.y - (rect_center_left_eye.y - roi_left_eye_rect.y));
 				vec_pupil_left_proj[2] = (0);
+
+				vec_temp1 = vec_pupil_left;
 
                 //get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
 				vec_pupil_left[0] = vec_pupil_left_proj[0];
@@ -751,13 +777,20 @@ int main(int argc, char **argv) {
                 	std::cout<<"Kalman filter initiated for left eye"<<std::endl;
                 	k_i++;
                 }
-                cv::Point2f sm_le = kalman_predict_correct(pupil_left_eye.x, pupil_left_eye.y);
-                std::vector<double> sm_le_gaze(3);
-                kalman_predict_correct_3(vec_pupil_left, sm_le_gaze);
-                std::cout<<"sm_le_gaze : "<<sm_le_gaze[0]<<", "<<sm_le_gaze[1]<<", "<<sm_le_gaze[2]<<std::endl;
+                double vt_x_nw = pupil_left_eye.x - pt_temp1.x;
+                double vt_y_nw = pupil_left_eye.y - pt_temp1.y;
+                cv::Point2f sm_le = kalman_predict_correct(pupil_left_eye.x, pupil_left_eye.y, vt_x_nw, vt_y_nw, vt_x_nw - vt_temp1.x, vt_y_nw - vt_temp1.y);
+
+                kalman_predict_correct_3(vec_pupil_left, vec_temp1, sm_le_gaze);
+                std::cout<<"\nsm_le_gaze : "<<sm_le_gaze[0]<<", "<<sm_le_gaze[1]<<", "<<sm_le_gaze[2]<<std::endl;
 
 
-                cv::circle(roi_left_eye, sm_le, 1, cv::Scalar(0, 255, 0), 2, 4, 0);
+                cv::circle(roi_left_eye, sm_le, 1, cv::Scalar(0, 255, 0), 1, 4, 0);
+                /*roi_left_eye.at<cv::Vec3b>(sm_le.x, sm_le.y)[0] = 255;
+                roi_left_eye.at<cv::Vec3b>(sm_le.x, sm_le.y)[1] = 255;
+                roi_left_eye.at<cv::Vec3b>(sm_le.x, sm_le.y)[2] = 255;
+                */
+                //draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);
                 draw_eye_gaze(sm_le, sm_le_gaze, roi_left_eye_rect, temp);
 
 

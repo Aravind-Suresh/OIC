@@ -433,17 +433,17 @@ void draw_facial_normal(cv::Mat& img, dlib::full_object_detection shape, FacePos
 }
 
 double scalarProduct(std::vector<double> vec1, std::vector<double> vec2) {
-    double dot = 0;
+	double dot = 0;
 
-    if(vec1.size() != vec2.size()) {
-        return 0;
-    }
+	if(vec1.size() != vec2.size()) {
+		return 0;
+	}
 
-    for(int i=0;i<vec1.size();i++) {
-        dot += vec1[i]*vec2[i];
-    }
+	for(int i=0;i<vec1.size();i++) {
+		dot += vec1[i]*vec2[i];
+	}
 
-    return dot;
+	return dot;
 }
 
 cv::Mat get_rotation_matrix_z(double theta) {
@@ -479,9 +479,9 @@ void makeUnitVector(std::vector<double> vec, std::vector<double>& unit_vector) {
 	}
 	magnitude = sqrt(magnitude);
 
-    for(int i=0;i<vec.size();i++) {
-        unit_vector[i] = (((double)(vec[i])/magnitude));
-    }
+	for(int i=0;i<vec.size();i++) {
+		unit_vector[i] = (((double)(vec[i])/magnitude));
+	}
 }
 
 void get_rotated_vector(std::vector<double> vec, std::vector<double>& vec_rot) {
@@ -536,14 +536,14 @@ void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye,
 
 cv::Point findAveragePupilPoint(std::vector<cv::Point> eyePoints)
 {
-   int point_x=0, point_y=0;
+	int point_x=0, point_y=0;
 
-   for(int i=0;i<eyePoints.size();i++)
-   {
-   	point_x += eyePoints[i].x;
-   	point_y += eyePoints[i].y;
-   }
-return cv::Point(point_x/eyePoints.size(),point_y/eyePoints.size());
+	for(int i=0;i<eyePoints.size();i++)
+	{
+		point_x += eyePoints[i].x;
+		point_y += eyePoints[i].y;
+	}
+	return cv::Point(point_x/eyePoints.size(),point_y/eyePoints.size());
 
 }
 
@@ -569,9 +569,7 @@ int main(int argc, char **argv) {
 
 
 		
-		while(!win.is_closed())
-		
-		{
+		while(!win.is_closed()) {
 			cv::Mat temp, temp2, roi_left_eye_temp, roi_right_eye_temp;
 			cv::Mat roi_left_eye, roi_right_eye ;
 			cv::Mat frame[3];
@@ -582,148 +580,128 @@ int main(int argc, char **argv) {
 			std::vector<cv::Point> eye_rightPupilPoints;
 			
 			cv::Point pupil_left_eye;
-			cv::Point pupil_right_eye 
-
+			cv::Point pupil_right_eye;
 			
 			std::vector<full_object_detection> shapes;
 			dlib::full_object_detection shape;
 
-			for(int i=0; i<4; i++)
-		{
-			
-			frame[i].copyTo(temp);
-			temp.copyTo(temp2);
-			cv::flip(temp, temp, 1);
+			for(int i=0; i<4; i++) {
 
-			cv_image<bgr_pixel> cimg(temp);
+				frame[i].copyTo(temp);
+				temp.copyTo(temp2);
+				cv::flip(temp, temp, 1);
 
-			std::vector<rectangle> faces = detector(cimg);
+				cv_image<bgr_pixel> cimg(temp);
 
-			for (unsigned long i = 0; i < faces.size(); ++i)
-				shapes.push_back(pose_model(cimg, faces[i]));
+				std::vector<rectangle> faces = detector(cimg);
 
-			if(shapes.size() == 0) {
-				std::cout<<"zero faces";
-			}
-			else {
+				for (unsigned long i = 0; i < faces.size(); ++i)
+					shapes.push_back(pose_model(cimg, faces[i]));
 
-				shape = shapes[0];
-
-				face_features->assign(cv::Point(0,0),
-					get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),
-						cv::Point(shape.part(45).x(), shape.part(45).y())),
-					get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()),
-						cv::Point(shape.part(39).x(), shape.part(39).y())),
-					cv::Point(shape.part(30).x(), shape.part(30).y()), 
-					get_mid_point(cv::Point(shape.part(48).x(), shape.part(48).y()),
-						cv::Point(shape.part(54).x(), shape.part(54).y())));
-
-				face_data->assign(face_features);
-
-				face_pose->assign(face_features, face_data);
-
-				draw_facial_normal(temp, shape, face_pose);
-				project_facial_pose(temp, face_pose->normal, face_pose->sigma, face_pose->theta);
-
-				std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
-
-				for(int j=42;j<=47;j++) {
-					vec_pts_left_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
+				if(shapes.size() == 0) {
+					std::cout<<"zero faces";
 				}
+				else {
 
-				for(int j=36;j<=41;j++) {
-					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
-				}
+					shape = shapes[0];
 
-				cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
+					face_features->assign(cv::Point(0,0),
+						get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),
+							cv::Point(shape.part(45).x(), shape.part(45).y())),
+						get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()),
+							cv::Point(shape.part(39).x(), shape.part(39).y())),
+						cv::Point(shape.part(30).x(), shape.part(30).y()), 
+						get_mid_point(cv::Point(shape.part(48).x(), shape.part(48).y()),
+							cv::Point(shape.part(54).x(), shape.part(54).y())));
+
+					face_data->assign(face_features);
+
+					face_pose->assign(face_features, face_data);
+
+					draw_facial_normal(temp, shape, face_pose);
+					project_facial_pose(temp, face_pose->normal, face_pose->sigma, face_pose->theta);
+
+					std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
+
+					for(int j=42;j<=47;j++) {
+						vec_pts_left_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
+					}
+
+					for(int j=36;j<=41;j++) {
+						vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
+					}
+
+					cv::Point rect_center_left_eye = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()), cv::Point(shape.part(45).x(), shape.part(45).y()));
                 cv::Rect roi_left_eye_rect/*(rect_center_left_eye.x - 15, rect_center_left_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_left_eye);
-                
-                roi_left_eye = temp(roi_left_eye_rect);
-                cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
 
-                preprocessROI(roi_left_eye_temp);
-                pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
+					roi_left_eye = temp(roi_left_eye_rect);
+					cv::cvtColor(roi_left_eye, roi_left_eye_temp, CV_BGR2GRAY);
+
+					preprocessROI(roi_left_eye_temp);
+					pupil_left_eye = findEyeCenter(roi_left_eye_temp, roi_left_eye_rect,"");
                 //cv::circle( roi_left_eye, pupil_left_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
 
-                cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
+					cv::Point rect_center_right_eye = get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()), cv::Point(shape.part(39).x(), shape.part(39).y()));
                 cv::Rect roi_right_eye_rect/*(rect_center_right_eye.x - 15, rect_center_right_eye.y - 18, 35, 30);*/ = cv::boundingRect(vec_pts_right_eye);
 
-                roi_right_eye = temp(roi_right_eye_rect);
-                cv::cvtColor(roi_right_eye, roi_right_eye_temp, CV_BGR2GRAY);
+					roi_right_eye = temp(roi_right_eye_rect);
+					cv::cvtColor(roi_right_eye, roi_right_eye_temp, CV_BGR2GRAY);
 
-                preprocessROI(roi_right_eye_temp);
-                pupil_right_eye = findEyeCenter(roi_right_eye_temp, roi_left_eye_rect, "");
-                
-                eye_leftPupilPoints.push_back(pupil_left_eye);
-                eye_rightPupilPoints.push_back(pupil_right_eye);
+					preprocessROI(roi_right_eye_temp);
+					pupil_right_eye = findEyeCenter(roi_right_eye_temp, roi_left_eye_rect, "");
 
-			}		
+					eye_leftPupilPoints.push_back(pupil_left_eye);
+					eye_rightPupilPoints.push_back(pupil_right_eye);
 
+				}		
+
+			}
+
+			pupil_left_eye = findAveragePupilPoint(eye_leftPupilPoints);
+			pupil_right_eye = findAveragePupilPoint(eye_rightPupilPoints);
+
+			cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
+
+			Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
+				cv::Point(shape.part(45).x(), shape.part(45).y()));
+
+
+			Cf_left = (12.5*Cf_left)/14.0;
+			std::cout<<"Cf_left : "<<Cf_left<<" ";
+
+			vec_normal[0] = (face_pose->normal[0]*Cf_left);
+			vec_normal[1] = (face_pose->normal[1]*Cf_left);
+			vec_normal[2] = (face_pose->normal[2]*Cf_left);
+
+			vec_pupil_left_proj[0] = (pupil_left_eye.x - (rect_center_left_eye.x - roi_left_eye_rect.x));
+			vec_pupil_left_proj[1] = (pupil_left_eye.y - (rect_center_left_eye.y - roi_left_eye_rect.y));
+			vec_pupil_left_proj[2] = (0);
+
+			vec_pupil_left[0] = vec_pupil_left_proj[0];
+			vec_pupil_left[1] = vec_pupil_left_proj[1];
+			vec_pupil_left[2] = vec_pupil_left_proj[2];
+
+			std::cout<<"\nbefore : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
+			std::cout<<"normal : "<<vec_normal[0]<<", "<<vec_normal[1]<<", "<<vec_normal[2]<<endl;
+
+			compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
+
+			makeUnitVector(vec_pupil_left, vec_pupil_left);
+			std::cout<<"final : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
+
+			draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);	
+			win.clear_overlay();
+			win.set_image(cimg);
+			win.add_overlay(render_face_detections(shapes));
 		}
-
-				pupil_left_eye = findAveragePupilPoint(std::vector<cv::Point> eye_leftPupilPoints);
-				pupil_right_eye = findAveragePupilPoint(std::vector<cv::Point> eye_rightPupilPoints);
-
-                //std::cout<<pupil_right_eye.x<<" "<<pupil_right_eye.y<<endl;
-                cv::circle( roi_right_eye, pupil_right_eye, 2, cv::Scalar(0, 255, 0), -1, 8, 0 );
-
-               	Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
-               	 cv::Point(shape.part(45).x(), shape.part(45).y()));
-
-
-               	Cf_left = (12.5*Cf_left)/14.0;
-               	std::cout<<"Cf_left : "<<Cf_left<<" ";
-
-                vec_normal[0] = (face_pose->normal[0]*Cf_left);
-                vec_normal[1] = (face_pose->normal[1]*Cf_left);
-                vec_normal[2] = (face_pose->normal[2]*Cf_left);
-
-                //std::cout<<vec_normal[0]<<endl;
-
-                vec_pupil_left_proj[0] = (pupil_left_eye.x - (rect_center_left_eye.x - roi_left_eye_rect.x));
-                vec_pupil_left_proj[1] = (pupil_left_eye.y - (rect_center_left_eye.y - roi_left_eye_rect.y));
-                vec_pupil_left_proj[2] = (0);
-
-                //get_rotated_vector(vec_pupil_left_proj, vec_pupil_left);
-                vec_pupil_left[0] = vec_pupil_left_proj[0];
-                vec_pupil_left[1] = vec_pupil_left_proj[1];
-                vec_pupil_left[2] = vec_pupil_left_proj[2];
-
-                //Make this unit vector and then apply weight only to Normal
-                //makeUnitVector(vec_pupil_left, vec_pupil_left);
-                
-                std::cout<<"\nbefore : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
-                std::cout<<"normal : "<<vec_normal[0]<<", "<<vec_normal[1]<<", "<<vec_normal[2]<<endl;
-
-                compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
-/*
-                vec_pupil_left[0] += vec_normal[0];
-                vec_pupil_left[1] += vec_normal[1];
-                vec_pupil_left[2] += vec_normal[2];*/
-
-                //Make vec_gaze a unit vector before this step
-                makeUnitVector(vec_pupil_left, vec_pupil_left);
-                std::cout<<"final : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
-                /*std::vector<double> vec_temp(3);
-                get_reverse_vector(vec_pupil_left, vec_temp);
-                makeUnitVector(vec_temp, vec_temp);
-                draw_eye_gaze(pupil_left_eye, vec_temp, roi_left_eye_rect, temp);
-*/                
-                draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);	
-            
-            //cv::waitKey(0);
-            win.clear_overlay();
-            win.set_image(cimg);
-            win.add_overlay(render_face_detections(shapes));
-        }
-    }
-    catch(serialization_error& e) {
-    	cout << "You need dlib's default face landmarking model file to run this example." << endl;
-    	cout << "You can get it from the following URL: " << endl;
-    	cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
-    	cout << endl << e.what() << endl;
-    }
-    catch(exception& e) {
-    	cout << e.what() << endl;
-    }
+	}
+	catch(serialization_error& e) {
+		cout << "You need dlib's default face landmarking model file to run this example." << endl;
+		cout << "You can get it from the following URL: " << endl;
+		cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
+		cout << endl << e.what() << endl;
+	}
+	catch(exception& e) {
+		cout << e.what() << endl;
+	}
 }
