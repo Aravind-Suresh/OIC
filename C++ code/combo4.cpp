@@ -595,6 +595,83 @@ cv::Point2f kalman_correct_point_e(cv::Point pt_pos, cv::Point pt_pos_old) {
 	return statePt;
 }
 
+
+cv::KalmanFilter KF_ce(6, 6, 0);
+cv::Mat_<float> measurement_ce(6,1);
+
+void init_kalman_ce(std::vector<double> vec) {
+
+	KF_ce.statePre.at<float>(0) = vec[0];
+	KF_ce.statePre.at<float>(1) = vec[1];
+	KF_ce.statePre.at<float>(2) = vec[2];
+	KF_ce.statePre.at<float>(3) = 0;
+	KF_ce.statePre.at<float>(4) = 0;
+	KF_ce.statePre.at<float>(5) = 0;
+
+
+	KF_ce.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+	KF_ce.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+
+	cv::setIdentity(KF_ce.measurementMatrix);
+	cv::setIdentity(KF_ce.processNoiseCov,cv::Scalar::all(1e-4));
+	cv::setIdentity(KF_ce.measurementNoiseCov,cv::Scalar::all(1e-1));
+	cv::setIdentity(KF_ce.errorCovPost, cv::Scalar::all(.1));  
+}
+
+void kalman_predict_correct_ce(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+	cv::Mat prediction = KF_ce.predict();
+	measurement2(0) = vec[0];
+	measurement2(1) = vec[1];
+	measurement2(2) = vec[2];
+	measurement2(3) = vec[0] - old[0];
+	measurement2(4) = vec[1] - old[1];
+	measurement2(5) = vec[2] - old[2];
+
+	cv::Mat estimated = KF_ce.correct(measurement2);
+	vec_pred[0] = estimated.at<float>(0);
+	vec_pred[1] = estimated.at<float>(1);
+	vec_pred[2] = estimated.at<float>(2);
+}
+
+cv::KalmanFilter KF_ep(6, 6, 0);
+cv::Mat_<float> measurement_ep(6,1);
+
+void init_kalman_ep(std::vector<double> vec) {
+
+	KF_ep.statePre.at<float>(0) = vec[0];
+	KF_ep.statePre.at<float>(1) = vec[1];
+	KF_ep.statePre.at<float>(2) = vec[2];
+	KF_ep.statePre.at<float>(3) = 0;
+	KF_ep.statePre.at<float>(4) = 0;
+	KF_ep.statePre.at<float>(5) = 0;
+
+
+	KF_ep.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+	KF_ep.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+
+	cv::setIdentity(KF_ep.measurementMatrix);
+	cv::setIdentity(KF_ep.processNoiseCov,cv::Scalar::all(1e-4));
+	cv::setIdentity(KF_ep.measurementNoiseCov,cv::Scalar::all(1e-1));
+	cv::setIdentity(KF_ep.errorCovPost, cv::Scalar::all(.1));  
+}
+
+void kalman_predict_correct_ep(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+	cv::Mat prediction = KF_ep.predict();
+	measurement2(0) = vec[0];
+	measurement2(1) = vec[1];
+	measurement2(2) = vec[2];
+	measurement2(3) = vec[0] - old[0];
+	measurement2(4) = vec[1] - old[1];
+	measurement2(5) = vec[2] - old[2];
+
+	cv::Mat estimated = KF_ep.correct(measurement2);
+	vec_pred[0] = estimated.at<float>(0);
+	vec_pred[1] = estimated.at<float>(1);
+	vec_pred[2] = estimated.at<float>(2);
+}
+
 int main(int argc, char** argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
