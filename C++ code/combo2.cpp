@@ -666,7 +666,7 @@ int main(int argc, char **argv) {
 					eye_rightPupilPoints.push_back(pupil_right_eye);
 
 				}		
-				
+
 			pupil_left_eye = findAveragePupilPoint(eye_leftPupilPoints);
 			pupil_right_eye = findAveragePupilPoint(eye_rightPupilPoints);
 
@@ -694,28 +694,6 @@ int main(int argc, char **argv) {
 			std::cout<<"\nbefore : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
 			std::cout<<"normal : "<<vec_normal[0]<<", "<<vec_normal[1]<<", "<<vec_normal[2]<<endl;
 
-<<<<<<< HEAD
-			compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
-
-			makeUnitVector(vec_pupil_left, vec_pupil_left);
-			std::cout<<"final : "<<vec_pupil_left[0]<<", "<<vec_pupil_left[1]<<", "<<vec_pupil_left[2]<<endl;
-
-			draw_eye_gaze(pupil_left_eye, vec_pupil_left, roi_left_eye_rect, temp);	
-			win.clear_overlay();
-			win.set_image(cimg);
-			win.add_overlay(render_face_detections(shapes));
-		}
-	}
-	catch(serialization_error& e) {
-		cout << "You need dlib's default face landmarking model file to run this example." << endl;
-		cout << "You can get it from the following URL: " << endl;
-		cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
-		cout << endl << e.what() << endl;
-	}
-	catch(exception& e) {
-		cout << e.what() << endl;
-	}
-=======
                 compute_vector_sum(vec_normal, vec_pupil_left, vec_pupil_left);
 /*
                 vec_pupil_left[0] += vec_normal[0];
@@ -747,5 +725,4 @@ int main(int argc, char **argv) {
     catch(exception& e) {
     	cout << e.what() << endl;
     }
->>>>>>> a829e15dde8024f88431b1c8ba63bfa3fdba8de5
 }
