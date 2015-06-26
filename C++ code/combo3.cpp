@@ -891,8 +891,8 @@ int main(int argc, char **argv) {
                 draw_facial_normal(temp, shape, sm_le_fn);
                 makeUnitVector(sm_le_gaze, sm_le_gaze);
 
-                cv::circle(roi_left_eye, sm_le, 1, cv::Scalar(0, 255, 0), 1, 4, 0);
-                draw_eye_gaze(sm_le, sm_le_gaze, roi_left_eye_rect, temp);
+                cv::circle(roi_left_eye, pupil_left_eye, 1, cv::Scalar(0, 255, 0), 1, 4, 0);
+                //draw_eye_gaze(sm_le, sm_le_gaze, roi_left_eye_rect, temp);
 
 
             }
