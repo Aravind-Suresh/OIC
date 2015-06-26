@@ -907,19 +907,18 @@ int main(int argc, char** argv) {
 				vec_cp_kalman[2] = vec_ce_kalman[2] + vec_ep_kalman[2];
 */
 				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
-				makeUnitVector(vec_cp_pos, vec_cp_pos);
 
 				if(!floodShouldPushPoint(pt_p_kalman, roi1)) {
 					init_kalman_point_p(pt_p_pos);
 				}
 
 				cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
-				draw_eye_gaze(pt_p_kalman, vec_cp_pos, rect1, frame);
+				draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
 				draw_facial_normal(frame, shape, vec_ce_kalman);
 			}
 			win.clear_overlay();
 			win.set_image(cimg);
-			win.add_overlay(render_face_detections(shapes));
+			//win.add_overlay(render_face_detections(shapes));
 		}
 	}
 	catch(serialization_error& e) {
