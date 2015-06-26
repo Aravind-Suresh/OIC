@@ -12,6 +12,7 @@
 double PI = 3.141592653589;
 double Rn = 0.5;
 double Rm = 0.5;
+double Wf = 0.6;
 double Cf_left = 10;
 
 using namespace dlib;
@@ -722,6 +723,8 @@ int main(int argc, char** argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
+		//Wf = std::atoi(argv[3])/100.0;
+
 		//Nf = std::atoi(argv[3])/100.0;
 		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<endl;
 
@@ -823,7 +826,10 @@ int main(int argc, char** argv) {
 
 				//TODO : Compute current values and correct values using Kalman filter
 
-				pt_e_pos = get_mid_point(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(rect1.x + rect1.width, rect1.y + rect1.height));
+				pt_e_pos = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),cv::Point(shape.part(45).x(), shape.part(45).y()));
+				//cv::Point(cv::Point((shape.part(23).x() + rect1.x + rect1.width)*0.5, shape.part(23).y()*(1.0-Wf) + Wf*(rect1.y + rect1.height)));
+				cv::circle(frame, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
+
 				pt_e_pos.x -= rect1.x;
 				pt_e_pos.y -= rect1.y;
 				pt_e_vel.x = pt_e_pos.x - pt_e_pos_old.x;
