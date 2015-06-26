@@ -896,6 +896,7 @@ int main(int argc, char** argv) {
 					init_kalman_cp(vec_cp_pos);
 					++k_vec_cp;
 				}
+				//heyy
 
 				kalman_predict_correct_cp(vec_cp_pos, vec_cp_pos_old, vec_cp_kalman);
 				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
