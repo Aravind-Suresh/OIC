@@ -533,33 +533,41 @@ void draw_eye_gaze(cv::Point pt, std::vector<double> vec_gaze, cv::Rect roi_eye,
 	cv::line(img, cv::Point(pt.x + roi_eye.x, pt.y + roi_eye.y), cv::Point(pt.x + del_x + roi_eye.x, pt.y + del_y + roi_eye.y), cv::Scalar(255, 255, 255), 2);
 }
 
-cv::KalmanFilter KF_p (4,4,0);
-cv::Mat_<float> measurement_p (4,1);
+cv::KalmanFilter KF_p (6,6,0);
+cv::Mat_<float> measurement_p (6,1);
 
 void init_kalman_point_p(cv::Point pt_pos) {
 	KF_p.statePre.at<float>(0) = pt_pos.x;
 	KF_p.statePre.at<float>(1) = pt_pos.y;
 	KF_p.statePre.at<float>(2) = 0;
 	KF_p.statePre.at<float>(3) = 0;
+	KF_p.statePre.at<float>(4) = 0;
+	KF_p.statePre.at<float>(5) = 0;
 
-	KF_p.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,0,     0,0,1,0,   0,0,0,1);
+	/*KF_p.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,0,     0,0,1,0,   0,0,0,1);
 	KF_p.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3);
+		0,0,0,0.3);*/
+	KF_p.transitionMatrix = *(cv::Mat_<float>(6,6) << 1,0,1,0,0.5,0,    0,1,0,1,0,0.5,     0,0,1,0,1,0,   0,0,0,1,0,1,  0,0,0,0,1,0,  0,0,0,0,0,1);
+	KF_p.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+
 	cv::setIdentity(KF_p.measurementMatrix);
 	cv::setIdentity(KF_p.processNoiseCov,cv::Scalar::all(1e-4));
 	cv::setIdentity(KF_p.measurementNoiseCov,cv::Scalar::all(1e-1));
 	cv::setIdentity(KF_p.errorCovPost, cv::Scalar::all(.1)); 
 }
 
-cv::Point2f kalman_correct_point_p(cv::Point pt_pos, cv::Point pt_pos_old) {
+cv::Point2f kalman_correct_point_p(cv::Point pt_pos, cv::Point pt_pos_old, cv::Point pt_vel_old) {
 	cv::Mat prediction = KF_p.predict();
 	cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
 	measurement_p(0) = pt_pos.x;
 	measurement_p(1) = pt_pos.y;
 	measurement_p(2) = pt_pos.x - pt_pos_old.x;
 	measurement_p(3) = pt_pos.y - pt_pos_old.y;
+	measurement_p(4) = measurement_p(2) - pt_vel_old.x;
+	measurement_p(5) = measurement_p(3) - pt_vel_old.y;
 
-	cv::Mat estimated = KF_p.correct(measurement);
+	cv::Mat estimated = KF_p.correct(measurement_p);
 	cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
 	return statePt;
 }
@@ -567,9 +575,9 @@ cv::Point2f kalman_correct_point_p(cv::Point pt_pos, cv::Point pt_pos_old) {
 cv::KalmanFilter KF_e (4,4,0);
 cv::Mat_<float> measurement_e (4,1);
 
-void init_kalman_point_e(cv::Point pt_eos) {
-	KF_e.statePre.at<float>(0) = pt_eos.x;
-	KF_e.statePre.at<float>(1) = pt_eos.y;
+void init_kalman_point_e(cv::Point pt_pos) {
+	KF_e.statePre.at<float>(0) = pt_pos.x;
+	KF_e.statePre.at<float>(1) = pt_pos.y;
 	KF_e.statePre.at<float>(2) = 0;
 	KF_e.statePre.at<float>(3) = 0;
 
@@ -582,17 +590,15 @@ void init_kalman_point_e(cv::Point pt_eos) {
 	cv::setIdentity(KF_e.errorCovPost, cv::Scalar::all(.1)); 
 }
 
-
-
-cv::Point2f kalman_correct_point_e(cv::Point pt_eos, cv::Point pt_eos_old) {
+cv::Point2f kalman_correct_point_e(cv::Point pt_pos, cv::Point pt_pos_old) {
 	cv::Mat prediction = KF_e.predict();
 	cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
-	measurement_e(0) = pt_eos.x;
-	measurement_e(1) = pt_eos.y;
-	measurement_e(2) = pt_eos.x - pt_eos_old.x;
-	measurement_e(3) = pt_eos.y - pt_eos_old.y;
+	measurement_e(0) = pt_pos.x;
+	measurement_e(1) = pt_pos.y;
+	measurement_e(2) = pt_pos.x - pt_pos_old.x;
+	measurement_e(3) = pt_pos.y - pt_pos_old.y;
 
-	cv::Mat estimated = KF_e.correct(measurement);
+	cv::Mat estimated = KF_e.correct(measurement_e);
 	cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
 	return statePt;
 }
@@ -623,14 +629,14 @@ void init_kalman_ce(std::vector<double> vec) {
 
 void kalman_predict_correct_ce(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
 	cv::Mat prediction = KF_ce.predict();
-	measurement2(0) = vec[0];
-	measurement2(1) = vec[1];
-	measurement2(2) = vec[2];
-	measurement2(3) = vec[0] - old[0];
-	measurement2(4) = vec[1] - old[1];
-	measurement2(5) = vec[2] - old[2];
+	measurement_ce(0) = vec[0];
+	measurement_ce(1) = vec[1];
+	measurement_ce(2) = vec[2];
+	measurement_ce(3) = vec[0] - old[0];
+	measurement_ce(4) = vec[1] - old[1];
+	measurement_ce(5) = vec[2] - old[2];
 
-	cv::Mat estimated = KF_ce.correct(measurement2);
+	cv::Mat estimated = KF_ce.correct(measurement_ce);
 	vec_pred[0] = estimated.at<float>(0);
 	vec_pred[1] = estimated.at<float>(1);
 	vec_pred[2] = estimated.at<float>(2);
@@ -661,14 +667,52 @@ void init_kalman_ep(std::vector<double> vec) {
 
 void kalman_predict_correct_ep(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
 	cv::Mat prediction = KF_ep.predict();
-	measurement2(0) = vec[0];
-	measurement2(1) = vec[1];
-	measurement2(2) = vec[2];
-	measurement2(3) = vec[0] - old[0];
-	measurement2(4) = vec[1] - old[1];
-	measurement2(5) = vec[2] - old[2];
+	measurement_ep(0) = vec[0];
+	measurement_ep(1) = vec[1];
+	measurement_ep(2) = vec[2];
+	measurement_ep(3) = vec[0] - old[0];
+	measurement_ep(4) = vec[1] - old[1];
+	measurement_ep(5) = vec[2] - old[2];
 
-	cv::Mat estimated = KF_ep.correct(measurement2);
+	cv::Mat estimated = KF_ep.correct(measurement_ep);
+	vec_pred[0] = estimated.at<float>(0);
+	vec_pred[1] = estimated.at<float>(1);
+	vec_pred[2] = estimated.at<float>(2);
+}
+
+cv::KalmanFilter KF_cp(6, 6, 0);
+cv::Mat_<float> measurement_cp(6,1);
+
+void init_kalman_cp(std::vector<double> vec) {
+
+	KF_cp.statePre.at<float>(0) = vec[0];
+	KF_cp.statePre.at<float>(1) = vec[1];
+	KF_cp.statePre.at<float>(2) = vec[2];
+	KF_cp.statePre.at<float>(3) = 0;
+	KF_cp.statePre.at<float>(4) = 0;
+	KF_cp.statePre.at<float>(5) = 0;
+
+
+	KF_cp.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+	KF_cp.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+
+	cv::setIdentity(KF_cp.measurementMatrix);
+	cv::setIdentity(KF_cp.processNoiseCov,cv::Scalar::all(1e-4));
+	cv::setIdentity(KF_cp.measurementNoiseCov,cv::Scalar::all(1e-1));
+	cv::setIdentity(KF_cp.errorCovPost, cv::Scalar::all(.1));  
+}
+
+void kalman_predict_correct_cp(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+	cv::Mat prediction = KF_cp.predict();
+	measurement_cp(0) = vec[0];
+	measurement_cp(1) = vec[1];
+	measurement_cp(2) = vec[2];
+	measurement_cp(3) = vec[0] - old[0];
+	measurement_cp(4) = vec[1] - old[1];
+	measurement_cp(5) = vec[2] - old[2];
+
+	cv::Mat estimated = KF_cp.correct(measurement_cp);
 	vec_pred[0] = estimated.at<float>(0);
 	vec_pred[1] = estimated.at<float>(1);
 	vec_pred[2] = estimated.at<float>(2);
@@ -692,25 +736,35 @@ int main(int argc, char** argv) {
 		shape_predictor pose_model;
 		deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
 
-		std::vector<double> vec_ce_pos(3), vec_ce_vel(3), vec_ce_pos_old(3), vec_ce_vel_old(3);
-		std::vector<double> vec_ep_pos(3), vec_ep_vel(3), vec_ep_pos_old(3), vec_ep_vel_old(3);
-		std::vector<double> vec_cp_pos(3), vec_cp_vel(3), vec_cp_pos_old(3), vec_cp_vel_old(3);
+		std::vector<double> vec_ce_pos(3), vec_ce_vel(3), vec_ce_pos_old(3), vec_ce_vel_old(3), vec_ce_kalman(3);
+		std::vector<double> vec_ep_pos(3), vec_ep_vel(3), vec_ep_pos_old(3), vec_ep_vel_old(3), vec_ep_kalman(3);
+		std::vector<double> vec_cp_pos(3), vec_cp_vel(3), vec_cp_pos_old(3), vec_cp_vel_old(3), vec_cp_kalman(3);
 
 		//TODO : Initialize all vectors to [0, 0, 0];
 
-		cv::Point pt_p_pos(0,0), pt_p_vel(0,0);
-		cv::Point pt_e_pos(0,0), pt_e_vel(0,0);
+		vec_ce_pos[0] = 0;vec_ce_pos[1] = 0;vec_ce_pos[2] = 0;
+		vec_ce_pos_old[0] = 0;vec_ce_pos_old[1] = 0;vec_ce_pos_old[2] = 0;
+
+		vec_ep_pos[0] = 0;vec_ep_pos[1] = 0;vec_ep_pos[2] = 0;
+		vec_ep_pos_old[0] = 0;vec_ep_pos_old[1] = 0;vec_ep_pos_old[2] = 0;
+
+		vec_cp_pos[0] = 0;vec_cp_pos[1] = 0;vec_cp_pos[2] = 0;
+		vec_cp_pos_old[0] = 0;vec_cp_pos_old[1] = 0;vec_cp_pos_old[2] = 0;
+
+		cv::Point pt_p_pos(0,0), pt_p_vel(0,0), pt_p_pos_old(0,0), pt_p_kalman(0,0), pt_p_vel_old(0,0);
+		cv::Point pt_e_pos(0,0), pt_e_vel(0,0), pt_e_pos_old(0,0), pt_e_kalman(0,0);
 
 		cv::Rect rect1;
 
 		cv::Mat frame, temp, temp2, roi1;
-		int k_i = 0;
+		int k_pt_e = 0, k_pt_p = 0, k_vec_ce = 0, k_vec_cp = 0, k_vec_ep = 0;
 
-		while(true) {
+		while(!win.is_closed()) {
 			cap>>frame;
 			cv::flip(frame, frame, 1);
+			cv::cvtColor(frame, frame, CV_BGR2GRAY);
 
-			cv_image<bgr_pixel> cimg(temp);
+			cv_image<unsigned char> cimg(frame);
 
 			std::vector<rectangle> faces = detector(cimg);
 
@@ -723,11 +777,15 @@ int main(int argc, char** argv) {
 			}
 			else {
 
-				if(k_i==0) {
-					//TODO : Initialize Kalman filter
-					init
-					++k_i;
-				}
+				//TODO : Initialize the variables used in the Kalman filter
+
+				pt_p_pos_old = pt_p_pos;
+				pt_p_vel_old = pt_p_vel;
+				pt_e_pos_old = pt_e_pos;
+
+				vec_ce_pos_old = vec_ce_pos;
+				vec_ep_pos_old = vec_ep_pos;
+				vec_cp_pos_old = vec_cp_pos;
 
 				dlib::full_object_detection shape = shapes[0];
 
@@ -743,6 +801,10 @@ int main(int argc, char** argv) {
 				face_data->assign(face_features);
 
 				face_pose->assign(face_features, face_data);
+				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
+					cv::Point(shape.part(45).x(), shape.part(45).y()));
+
+				Cf_left = (12.5*Cf_left)/(14.0);
 
 				std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
 
@@ -755,20 +817,119 @@ int main(int argc, char** argv) {
 				}
 
 				rect1 = cv::boundingRect(vec_pts_left_eye);
+				cv::Rect rect2(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(shape.part(26).x(), rect1.y + rect1.height));
+				cv::rectangle(frame, rect1, cv::Scalar(255, 255, 255), 1, 8, 0);
 				roi1 = frame(rect1);
 
-				//TODO : Compute current values
+				//TODO : Compute current values and correct values using Kalman filter
+
+				pt_e_pos = get_mid_point(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(rect1.x + rect1.width, rect1.y + rect1.height));
+				pt_e_pos.x -= rect1.x;
+				pt_e_pos.y -= rect1.y;
+				pt_e_vel.x = pt_e_pos.x - pt_e_pos_old.x;
+				pt_e_vel.y = pt_e_pos.y - pt_e_pos_old.y;
+
+				if(k_pt_e == 0) {
+					init_kalman_point_e(pt_e_pos);
+					++k_pt_e;
+				}
+
+				pt_e_kalman = kalman_correct_point_e(pt_e_pos, pt_e_pos_old);
+				
+				std::cout<<"Point E "<<pt_e_kalman.x<<" "<<pt_e_kalman.y<<endl;
 
 
-				//TODO : Kalman predict the current values
+				pt_p_pos = findEyeCenter(roi1, rect1, "");
+				pt_p_vel.x = pt_p_pos.x - pt_p_pos_old.x;
+				pt_p_vel.y = pt_p_pos.y - pt_p_pos_old.y;
+
+				if(k_pt_p == 0) {
+					init_kalman_point_p(pt_p_pos);
+					++k_pt_p;
+				}
+
+				pt_p_kalman = kalman_correct_point_p(pt_p_pos, pt_p_pos_old, pt_p_vel);
+
+				std::cout<<"Point P "<<pt_p_kalman.x<<" "<<pt_p_kalman.y<<endl;
+
+				vec_ce_pos[0] = face_pose->normal[0];
+				vec_ce_pos[1] = face_pose->normal[1];
+				vec_ce_pos[2] = face_pose->normal[2];
+
+				vec_ce_vel[0] = vec_ce_pos[0] - vec_ce_pos_old[0];
+				vec_ce_vel[1] = vec_ce_pos[1] - vec_ce_pos_old[1];
+				vec_ce_vel[2] = vec_ce_pos[2] - vec_ce_pos_old[2];
+
+				if(k_vec_ce == 0) {
+					init_kalman_ce(vec_ce_pos);
+					++k_vec_ce;
+				}
+
+				kalman_predict_correct_ce(vec_ce_pos, vec_ce_pos_old, vec_ce_kalman);
+				makeUnitVector(vec_ce_pos, vec_ce_pos);
+				makeUnitVector(vec_ce_kalman, vec_ce_kalman);
+				std::cout<<"Vector CE "<<vec_ce_kalman[0]<<" "<<vec_ce_kalman[1]<<" "<<vec_ce_kalman[2]<<endl;
 
 
-				//TODO : Display the current values
+				vec_ep_pos[0] = pt_p_kalman.x - pt_e_kalman.x;
+				vec_ep_pos[1] = pt_p_kalman.y - pt_e_kalman.y;
+				vec_ep_pos[2] = 0;
 
+				vec_ep_pos[0] = pt_p_pos.x - pt_e_pos.x;
+				vec_ep_pos[1] = pt_p_pos.y - pt_e_pos.y;
+				vec_ep_pos[2] = 0.0;
+
+				if(k_vec_ep == 0) {
+					init_kalman_ep(vec_ep_pos);
+					++k_vec_ep;
+				}
+				kalman_predict_correct_ep(vec_ep_pos, vec_ep_pos_old, vec_ep_kalman);
+
+				vec_cp_pos[0] = (Cf_left*vec_ce_pos[0]) + vec_ep_pos[0];
+				vec_cp_pos[1] = (Cf_left*vec_ce_pos[1]) + vec_ep_pos[1];
+				vec_cp_pos[2] = (Cf_left*vec_ce_pos[2]) + vec_ep_pos[2];
+				
+				vec_cp_vel[0] = vec_cp_pos[0] - vec_cp_pos_old[0];
+				vec_cp_vel[1] = vec_cp_pos[1] - vec_cp_pos_old[1];
+				vec_cp_vel[2] = vec_cp_pos[2] - vec_cp_pos_old[2];
+
+				if(k_vec_cp == 0) {
+					init_kalman_cp(vec_cp_pos);
+					++k_vec_cp;
+				}
+				//heyy
+
+				kalman_predict_correct_cp(vec_cp_pos, vec_cp_pos_old, vec_cp_kalman);
+				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
+
+				std::cout<<"Vector CP "<<vec_cp_kalman[0]<<" "<<vec_cp_kalman[1]<<" "<<vec_cp_kalman[2]<<endl;
+/*
+				vec_cp_kalman[0] = vec_ce_kalman[0] + vec_ep_kalman[0];
+				vec_cp_kalman[1] = vec_ce_kalman[1] + vec_ep_kalman[1];
+				vec_cp_kalman[2] = vec_ce_kalman[2] + vec_ep_kalman[2];
+*/
+				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
+
+				if(!floodShouldPushPoint(pt_p_kalman, roi1)) {
+					init_kalman_point_p(pt_p_pos);
+				}
+
+				cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
+				draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
+				draw_facial_normal(frame, shape, vec_ce_kalman);
 			}
-
+			win.clear_overlay();
+			win.set_image(cimg);
+			//win.add_overlay(render_face_detections(shapes));
 		}
-
-
+	}
+	catch(serialization_error& e) {
+		cout << "You need dlib's default face landmarking model file to run this example." << endl;
+		cout << "You can get it from the following URL: " << endl;
+		cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
+		cout << endl << e.what() << endl;
+	}
+	catch(exception& e) {
+		cout << e.what() << endl;
 	}
 }
