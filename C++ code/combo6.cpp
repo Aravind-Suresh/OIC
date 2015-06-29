@@ -8,8 +8,6 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string>
-#include <X11/Xlib.h>
-#include <X11/Xutil.h>
 
 double PI = 3.141592653589;
 double Rn = 0.5;
@@ -19,52 +17,6 @@ double Cf_left = 10;
 
 using namespace dlib;
 using namespace std;
- 
-//Calibration gaze keys
-int TOP_LEFT = 0, TOP_RIGHT = 1, BOTTOM_RIGHT = 2, BOTTOM_LEFT = 3;
-std::vector<std::vector<double> > calib_gaze(0);
-
-void mouse_move(int x, int y)
-{
-    Display *displayMain = XOpenDisplay(NULL);
-
-    if(displayMain == NULL)
-    {
-    	std::cout<<"Can't read display";
-        exit(EXIT_FAILURE);
-    }
-
-    XWarpPointer(displayMain, None, None, 0, 0, 0, 0, x, y);
-
-    XCloseDisplay(displayMain);
-}
-
-void calibrate_distance(int key, std::vector<double> vec_gaze) {
-	if(key>(calib_gaze.size() - 1) || key<0) {
-		return;
-	}
-	else {
-		calib_gaze[key] = vec_gaze;
-	}
-}
-
-int match_gaze_vector(std::vector<double> vec_gaze) {
-	int key;
-	double score1=0, score2=0;
-	std::vector<double> temp;
-	for(int i=0;i<calib_gaze.size();i++) {
-		temp =calib_gaze[i];
-		score2 = score1;
-		score1 = 0;
-		for(int j=0;j<temp.size();j++) {
-			score1 += (temp[j] - vec_gaze[j])*(temp[j] - vec_gaze[j]);
-		}
-		if(score1 < score2) {
-			key = i;
-		}
-	}
-	return key;
-}
 
 cv::Point unscalePoint(cv::Point p, cv::Rect origSize) {
 	float ratio = (((float)(50))/origSize.width);
@@ -767,13 +719,16 @@ void kalman_predict_correct_cp(std::vector<double> vec, std::vector<double> old,
 	vec_pred[2] = estimated.at<float>(2);
 }
 
+void retrace_eye_center(cv::Point& pt_e_pos, double normal[3], double mag) {
+	pt_e_pos.x = pt_e_pos.x - normal[0]*mag;
+	pt_e_pos.y = pt_e_pos.y - normal[1]*mag;
+}
+
 int main(int argc, char** argv) {
 	try	{
 		Rm = std::atoi(argv[1])/100.0;
 		Rn = std::atoi(argv[2])/100.0;
-		double Rd = atoi(argv[3]);
-		double proj_x, proj_y;
-		double sc_w, sc_h;
+
 		//Wf = std::atoi(argv[3])/100.0;
 
 		//Nf = std::atoi(argv[3])/100.0;
@@ -793,6 +748,8 @@ int main(int argc, char** argv) {
 		std::vector<double> vec_ce_pos(3), vec_ce_vel(3), vec_ce_pos_old(3), vec_ce_vel_old(3), vec_ce_kalman(3);
 		std::vector<double> vec_ep_pos(3), vec_ep_vel(3), vec_ep_pos_old(3), vec_ep_vel_old(3), vec_ep_kalman(3);
 		std::vector<double> vec_cp_pos(3), vec_cp_vel(3), vec_cp_pos_old(3), vec_cp_vel_old(3), vec_cp_kalman(3);
+
+		std::vector<double> center_eye_proj(3);
 
 		//TODO : Initialize all vectors to [0, 0, 0];
 
@@ -881,6 +838,9 @@ int main(int argc, char** argv) {
 				//cv::Point(cv::Point((shape.part(23).x() + rect1.x + rect1.width)*0.5, shape.part(23).y()*(1.0-Wf) + Wf*(rect1.y + rect1.height)));
 				cv::circle(frame, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
 
+				retrace_eye_center(pt_e_pos, face_pose->normal, Cf_left);
+				cv::circle(frame, pt_e_pos, 1, cv::Scalar(127,0,0), 1, 4, 0);
+
 				pt_e_pos.x -= rect1.x;
 				pt_e_pos.y -= rect1.y;
 				pt_e_vel.x = pt_e_pos.x - pt_e_pos_old.x;
@@ -913,7 +873,6 @@ int main(int argc, char** argv) {
 					k_pt_e=0;
 					k_vec_ce=0;
 					k_vec_ep=0;
-
 				}
 
 				std::cout<<"Point P "<<pt_p_kalman.x<<" "<<pt_p_kalman.y<<endl;
@@ -963,6 +922,7 @@ int main(int argc, char** argv) {
 					init_kalman_cp(vec_cp_pos);
 					++k_vec_cp;
 				}
+				//heyy
 
 				kalman_predict_correct_cp(vec_cp_pos, vec_cp_pos_old, vec_cp_kalman);
 				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
@@ -982,27 +942,9 @@ int main(int argc, char** argv) {
 				//cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
 				draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
 				draw_facial_normal(frame, shape, vec_ce_kalman);
-
-				proj_x = (-vec_cp_kalman[0]*Rd)/(vec_cp_kalman[2]) + sc_w/2.0;
-				proj_y = (-vec_cp_kalman[1]*Rd)/(vec_cp_kalman[2]) + sc_h/2.0;
-
-				mouse_move(proj_x, proj_y);
-
-				win.clear_overlay();
-				win.set_image(cimg);
-
-				/*std::cout<<"Waiting to calibrate"<<std::endl;
-				if(calib_gaze.size()<4) {
-					if(cin.get() == '\n') {
-						calib_gaze.push_back(vec_ce_kalman);
-					}
-				}
-				else {
-					int matched_key = match_gaze_vector(vec_ce_kalman);
-					std::cout<<"Matched with : "<<matched_key<<std::endl;
-				}*/
-
 			}
+			win.clear_overlay();
+			win.set_image(cimg);
 			//win.add_overlay(render_face_detections(shapes));
 		}
 	}
