@@ -1321,8 +1321,13 @@ int main(int argc, char** argv) {
 				vec_cp_kalman_avg[2] = (vec_cp_kalman_l[2] + vec_cp_kalman_r[2])/2.0;
 
 				//cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
+/*
 				draw_eye_gaze(pt_p_kalman_l, vec_cp_kalman_l, rect1, frame);				
 				draw_eye_gaze(pt_p_kalman_r, vec_cp_kalman_r, rect2, frame);
+*/				
+
+				draw_eye_gaze(pt_p_kalman_l, vec_cp_kalman_avg, rect1, frame);				
+				draw_eye_gaze(pt_p_kalman_r, vec_cp_kalman_avg, rect2, frame);
 
 				draw_facial_normal(frame, shape, vec_ce_kalman_l);
 			}
