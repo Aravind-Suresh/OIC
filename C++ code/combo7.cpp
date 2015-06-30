@@ -14,6 +14,8 @@ double Rn = 0.5;
 double Rm = 0.5;
 double Wf = 0.6;
 double Cf_left = 10;
+double Cf_right = 10;
+
 
 using namespace dlib;
 using namespace std;
@@ -837,8 +839,8 @@ void kalman_predict_correct_ep_r(std::vector<double> vec, std::vector<double> ol
 }
 
 
-cv::KalmanFilter KF_cp(6, 6, 0);
-cv::Mat_<float> measurement_cp(6,1);
+cv::KalmanFilter KF_cp_l(6, 6, 0);
+cv::Mat_<float> measurement_cp_l(6,1);
 
 void init_kalman_cp_l(std::vector<double> vec) {
 
@@ -861,8 +863,8 @@ void init_kalman_cp_l(std::vector<double> vec) {
 }
 
 
-cv::KalmanFilter KF_cp(6, 6, 0);
-cv::Mat_<float> measurement_cp(6,1);
+cv::KalmanFilter KF_cp_r(6, 6, 0);
+cv::Mat_<float> measurement_cp_r(6,1);
 
 void init_kalman_cp_r(std::vector<double> vec) {
 
@@ -961,9 +963,14 @@ int main(int argc, char** argv) {
 
 		std::vector<double> vec_ce_pos_l(3), vec_ce_vel_l(3), vec_ce_pos_l_old(3), vec_ce_vel_l_old(3), vec_ce_kalman_l(3);
 		std::vector<double> vec_ep_pos_l(3), vec_ep_vel_l(3), vec_ep_pos_l_old(3), vec_ep_vel_l_old(3), vec_ep_kalman_l(3);
-		std::vector<double> vec_cp_pos(3), vec_cp_vel_l(3), vec_cp_pos_l_old(3), vec_cp_vel_l_old(3), vec_cp_kalman_l(3);
+		std::vector<double> vec_cp_pos_l(3), vec_cp_vel_l(3), vec_cp_pos_l_old(3), vec_cp_vel_l_old(3), vec_cp_kalman_l(3);
+
+		std::vector<double> vec_ce_pos_r(3), vec_ce_vel_r(3), vec_ce_pos_r_old(3), vec_ce_vel_r_old(3), vec_ce_kalman_r(3);
+		std::vector<double> vec_ep_pos_r(3), vec_ep_vel_r(3), vec_ep_pos_r_old(3), vec_ep_vel_r_old(3), vec_ep_kalman_r(3);
+		std::vector<double> vec_cp_pos_r(3), vec_cp_vel_r(3), vec_cp_pos_r_old(3), vec_cp_vel_r_old(3), vec_cp_kalman_r(3);
 
 		std::vector<double> center_eye_proj(3);
+		std::vector<double> vec_cp_kalman_avg(3);
 
 		//TODO : Initialize all vectors to [0, 0, 0];
 
@@ -994,9 +1001,9 @@ int main(int argc, char** argv) {
 		cv::Point pt_p_pos_r(0,0), pt_p_vel_r(0,0), pt_p_pos_r_old(0,0), pt_p_kalman_r(0,0), pt_p_vel_r_old(0,0);
 		cv::Point pt_e_pos_r(0,0), pt_e_vel_r(0,0), pt_e_pos_r_old(0,0), pt_e_kalman_r(0,0);
 
-		cv::Rect rect1;
+		cv::Rect rect1, rect2;
 
-		cv::Mat frame, temp, temp2, roi1;
+		cv::Mat frame, temp, temp2, roi1,roi2;
 		int k_pt_e_l = 0, k_pt_p_l = 0, k_vec_ce_l = 0, k_vec_cp_l = 0, k_vec_ep_l = 0;
 		int k_pt_e_r = 0, k_pt_p_r = 0, k_vec_ce_r = 0, k_vec_cp_r = 0, k_vec_ep_r = 0;
 
@@ -1062,26 +1069,17 @@ int main(int argc, char** argv) {
 				face_pose->assign(face_features, face_data);
 				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
 					cv::Point(shape.part(45).x(), shape.part(45).y()));
-				Cf_right = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
-					cv::Point(shape.part(45).x(), shape.part(45).y()));
+				Cf_right = get_distance(cv::Point(shape.part(36).x(), shape.part(39).y()),
+					cv::Point(shape.part(36).x(), shape.part(39).y()));
 
 
 				Cf_left = (Cf_left)/(14.0);
 				Cf_right = (Cf_right)/(14.0);
 
 				std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
-				std::vector<cv::Point> vec_pts_right_eye(0), vec_pts_right_eye(0);
-
+				
 				for(int j=42;j<=47;j++) {
 					vec_pts_left_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
-				}
-
-				for(int j=36;j<=41;j++) {
-					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
-				}
-
-				for(int j=42;j<=47;j++) {
-					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
 				}
 
 				for(int j=36;j<=41;j++) {
@@ -1119,55 +1117,55 @@ int main(int argc, char** argv) {
 				pt_e_vel_l.x = pt_e_pos_l.x - pt_e_pos_l_old.x;
 				pt_e_vel_l.y = pt_e_pos_l.y - pt_e_pos_l_old.y;
 
-				pt_e_pos_r.x -= rect1.x;
-				pt_e_pos_r.y -= rect1.y;
+				pt_e_pos_r.x -= rect2.x;
+				pt_e_pos_r.y -= rect2.y;
 				pt_e_vel_r.x = pt_e_pos_r.x - pt_e_pos_r_old.x;
 				pt_e_vel_r.y = pt_e_pos_r.y - pt_e_pos_r_old.y;
 
 				if(k_pt_e_l == 0) {
 					pt_e_pos_l_old.x = 0;
 					pt_e_pos_l_old.y = 0;
-					init_kalman_point_e(pt_e_pos_l);
+					init_kalman_point_e_l(pt_e_pos_l);
 					++k_pt_e_l;
 				}
 
 				if(k_pt_e_r == 0) {
 					pt_e_pos_r_old.x = 0;
 					pt_e_pos_r_old.y = 0;
-					init_kalman_point_e(pt_e_pos_r);
+					init_kalman_point_e_r(pt_e_pos_r);
 					++k_pt_e_r;
 				}
 
-				pt_e_kalman_l = kalman_correct_point_e(pt_e_pos_l, pt_e_pos_l_old);
-				pt_e_kalman_r = kalman_correct_point_e(pt_e_pos_r, pt_e_pos_r_old);
+				pt_e_kalman_l = kalman_correct_point_e_l(pt_e_pos_l, pt_e_pos_l_old);
+				pt_e_kalman_r = kalman_correct_point_e_r(pt_e_pos_r, pt_e_pos_r_old);
 
-				std::cout<<"Point E "<<pt_e_kalman_l.x<<" "<<pt_e_kalman_l.y<<endl;
-				std::cout<<"Point E "<<pt_e_kalman_r.x<<" "<<pt_e_kalman_r.y<<endl;
+				std::cout<<"Point E - l "<<pt_e_kalman_l.x<<" "<<pt_e_kalman_l.y<<endl;
+				std::cout<<"Point E - l "<<pt_e_kalman_r.x<<" "<<pt_e_kalman_r.y<<endl;
 
 				pt_p_pos_l = findEyeCenter(roi1, rect1, "");
 				pt_p_vel_l.x = pt_p_pos_l.x - pt_p_pos_l_old.x;
 				pt_p_vel_l.y = pt_p_pos_l.y - pt_p_pos_l_old.y;
 
-				pt_p_pos_r = findEyeCenter(roi1, rect1, "");
+				pt_p_pos_r = findEyeCenter(roi2, rect2, "");
 				pt_p_vel_r.x = pt_p_pos_r.x - pt_p_pos_r_old.x;
 				pt_p_vel_r.y = pt_p_pos_r.y - pt_p_pos_r_old.y;
 
 				if(k_pt_p_l == 0) {
 					pt_p_pos_l_old.x = 0;
 					pt_p_pos_l_old.y = 0;
-					init_kalman_point_p(pt_p_pos_l);
+					init_kalman_point_p_l(pt_p_pos_l);
 					++k_pt_p_l;
 				}
 
 				if(k_pt_p_r == 0) {
 					pt_p_pos_r_old.x = 0;
 					pt_p_pos_r_old.y = 0;
-					init_kalman_point_p(pt_p_pos_r);
+					init_kalman_point_p_r(pt_p_pos_r);
 					++k_pt_p_r;
 				}
 
-				pt_p_kalman_l = kalman_correct_point_p(pt_p_pos_l, pt_p_pos_l_old, pt_p_vel_l);
-				pt_p_kalman_r = kalman_correct_point_p(pt_p_pos_r, pt_p_pos_r_old, pt_p_vel_r);
+				pt_p_kalman_l = kalman_correct_point_p_l(pt_p_pos_l, pt_p_pos_l_old, pt_p_vel_l);
+				pt_p_kalman_r = kalman_correct_point_p_r(pt_p_pos_r, pt_p_pos_r_old, pt_p_vel_r);
 
 
 				if(!floodShouldPushPoint(pt_p_kalman_l, roi1)) {
@@ -1186,34 +1184,63 @@ int main(int argc, char** argv) {
 
 				std::cout<<"Point P "<<pt_p_kalman_l.x<<" "<<pt_p_kalman_l.y<<endl;
 				std::cout<<"Point P "<<pt_p_kalman_r.x<<" "<<pt_p_kalman_r.y<<endl;
-	/////////////////////////////////////////////////////////////////			
+			
 				vec_ce_pos_l[0] = face_pose->normal[0];
 				vec_ce_pos_l[1] = face_pose->normal[1];
 				vec_ce_pos_l[2] = face_pose->normal[2];
+				
+				vec_ce_pos_r[0] = face_pose->normal[0];
+				vec_ce_pos_r[1] = face_pose->normal[1];
+				vec_ce_pos_r[2] = face_pose->normal[2];
+
 
 				vec_ce_vel_l[0] = vec_ce_pos_l[0] - vec_ce_pos_l_old[0];
 				vec_ce_vel_l[1] = vec_ce_pos_l[1] - vec_ce_pos_l_old[1];
 				vec_ce_vel_l[2] = vec_ce_pos_l[2] - vec_ce_pos_l_old[2];
 
+				vec_ce_vel_r[0] = vec_ce_pos_r[0] - vec_ce_pos_r_old[0];
+				vec_ce_vel_r[1] = vec_ce_pos_r[1] - vec_ce_pos_r_old[1];
+				vec_ce_vel_r[2] = vec_ce_pos_r[2] - vec_ce_pos_r_old[2];
+
 				if(k_vec_ce_l == 0) {
 					vec_ce_pos_l_old[0] = 0;vec_ce_pos_l_old[1] = 0;vec_ce_pos_l_old[2] = 0;
-					init_kalman_ce(vec_ce_pos_l);
+					init_kalman_ce_l(vec_ce_pos_l);
 					++k_vec_ce_l;
 				}
 
+				if(k_vec_ce_r == 0) {
+					vec_ce_pos_r_old[0] = 0;vec_ce_pos_r_old[1] = 0;vec_ce_pos_r_old[2] = 0;
+					init_kalman_ce_r(vec_ce_pos_r);
+					++k_vec_ce_r;
+				}
+
 				kalman_predict_correct_ce_l(vec_ce_pos_l, vec_ce_pos_l_old, vec_ce_kalman_l);
+				kalman_predict_correct_ce_r(vec_ce_pos_r, vec_ce_pos_r_old, vec_ce_kalman_r);
+		
 				makeUnitVector(vec_ce_pos_l, vec_ce_pos_l);
 				makeUnitVector(vec_ce_kalman_l, vec_ce_kalman_l);
 				std::cout<<"Vector CE "<<vec_ce_kalman_l[0]<<" "<<vec_ce_kalman_l[1]<<" "<<vec_ce_kalman_l[2]<<endl;
+
+				makeUnitVector(vec_ce_pos_r, vec_ce_pos_r);
+				makeUnitVector(vec_ce_kalman_r, vec_ce_kalman_r);
+				std::cout<<"Vector CE "<<vec_ce_kalman_r[0]<<" "<<vec_ce_kalman_r[1]<<" "<<vec_ce_kalman_r[2]<<endl;
 
 
 				vec_ep_pos_l[0] = pt_p_kalman_l.x - pt_e_kalman_l.x;
 				vec_ep_pos_l[1] = pt_p_kalman_l.y - pt_e_kalman_l.y;
 				vec_ep_pos_l[2] = 0.0;
 
+				vec_ep_pos_r[0] = pt_p_kalman_r.x - pt_e_kalman_r.x;
+				vec_ep_pos_r[1] = pt_p_kalman_r.y - pt_e_kalman_r.y;
+				vec_ep_pos_r[2] = 0.0;
+
 				vec_ep_pos_l[0] = pt_p_pos_l.x - pt_e_pos_l.x;
 				vec_ep_pos_l[1] = pt_p_pos_l.y - pt_e_pos_l.y;
 				vec_ep_pos_l[2] = 0.0;
+
+				vec_ep_pos_r[0] = pt_p_pos_r.x - pt_e_pos_r.x;
+				vec_ep_pos_r[1] = pt_p_pos_r.y - pt_e_pos_r.y;
+				vec_ep_pos_r[2] = 0.0;
 
 				if(k_vec_ep_l == 0) {
 					vec_ep_pos_l_old[0] = 0;
@@ -1222,16 +1249,36 @@ int main(int argc, char** argv) {
 					init_kalman_ep_l(vec_ep_pos_l);
 					++k_vec_ep_l;
 				}
-				kalman_predict_correct_ep(vec_ep_pos_l, vec_ep_pos_l_old, vec_ep_kalman_l);
+	
+				if(k_vec_ep_r == 0) {
+					vec_ep_pos_r_old[0] = 0;
+					vec_ep_pos_r_old[1] = 0;
+					vec_ep_pos_r_old[2] = 0;
+					init_kalman_ep_r(vec_ep_pos_r);
+					++k_vec_ep_r;
+				}
+	
+				kalman_predict_correct_ep_l(vec_ep_pos_l, vec_ep_pos_l_old, vec_ep_kalman_l);
+				kalman_predict_correct_ep_r(vec_ep_pos_r, vec_ep_pos_r_old, vec_ep_kalman_r);
 
 				vec_cp_pos_l[0] = (13.101*Cf_left*vec_ce_pos_l[0]) + 3.0*vec_ep_pos_l[0];
 				vec_cp_pos_l[1] = (13.101*Cf_left*vec_ce_pos_l[1]) + 3.0*vec_ep_pos_l[1];
 				vec_cp_pos_l[2] = (13.101*Cf_left*vec_ce_pos_l[2]) + 3.0*vec_ep_pos_l[2];
-				
+	
+				vec_cp_pos_r[0] = (13.101*Cf_right*vec_ce_pos_r[0]) + 3.0*vec_ep_pos_r[0];
+				vec_cp_pos_r[1] = (13.101*Cf_right*vec_ce_pos_r[1]) + 3.0*vec_ep_pos_r[1];
+				vec_cp_pos_r[2] = (13.101*Cf_right*vec_ce_pos_r[2]) + 3.0*vec_ep_pos_r[2];
+	
+
 				vec_cp_vel_l[0] = vec_cp_pos_l[0] - vec_cp_pos_l_old[0];
 				vec_cp_vel_l[1] = vec_cp_pos_l[1] - vec_cp_pos_l_old[1];
 				vec_cp_vel_l[2] = vec_cp_pos_l[2] - vec_cp_pos_l_old[2];
+		
+				vec_cp_vel_r[0] = vec_cp_pos_r[0] - vec_cp_pos_r_old[0];
+				vec_cp_vel_r[1] = vec_cp_pos_r[1] - vec_cp_pos_r_old[1];
+				vec_cp_vel_r[2] = vec_cp_pos_r[2] - vec_cp_pos_r_old[2];
 
+	
 				if(k_vec_cp_l == 0) {
 					vec_cp_pos_l_old[0] = 0;
 					vec_cp_pos_l_old[1] = 0;
@@ -1239,25 +1286,44 @@ int main(int argc, char** argv) {
 					init_kalman_cp_l(vec_cp_pos_l);
 					++k_vec_cp_l;
 				}
-				//heyy
+		
+				if(k_vec_cp_r == 0) {
+					vec_cp_pos_r_old[0] = 0;
+					vec_cp_pos_r_old[1] = 0;
+					vec_cp_pos_r_old[2] = 0;
+					init_kalman_cp_r(vec_cp_pos_r);
+					++k_vec_cp_r;
+				}
 
 				kalman_predict_correct_cp_l(vec_cp_pos_l, vec_cp_pos_l_old, vec_cp_kalman_l);
+				kalman_predict_correct_cp_r(vec_cp_pos_r, vec_cp_pos_r_old, vec_cp_kalman_r);
+	
 				makeUnitVector(vec_cp_kalman_l, vec_cp_kalman_l);
+				makeUnitVector(vec_cp_kalman_r, vec_cp_kalman_r);
 
 				std::cout<<"Vector CP "<<vec_cp_kalman_l[0]<<" "<<vec_cp_kalman_l[1]<<" "<<vec_cp_kalman_l[2]<<endl;
+				std::cout<<"Vector CP "<<vec_cp_kalman_r[0]<<" "<<vec_cp_kalman_r[1]<<" "<<vec_cp_kalman_r[2]<<endl;
+
 /*
 				vec_cp_kalman[0] = vec_ce_kalman[0] + vec_ep_kalman[0];
 				vec_cp_kalman[1] = vec_ce_kalman[1] + vec_ep_kalman[1];
 				vec_cp_kalman[2] = vec_ce_kalman[2] + vec_ep_kalman[2];
 */
 				makeUnitVector(vec_cp_kalman_l, vec_cp_kalman_l);
+				makeUnitVector(vec_cp_kalman_r, vec_cp_kalman_r);
+
 
 				/*if(!floodShouldPushPoint(pt_p_kalman, roi1)) {
 					init_kalman_point_p(pt_p_pos);
 				}*/
+				vec_cp_kalman_avg[0] = (vec_cp_kalman_l[0] + vec_cp_kalman_r[0])/2.0;
+				vec_cp_kalman_avg[1] = (vec_cp_kalman_l[1] + vec_cp_kalman_r[1])/2.0;
+				vec_cp_kalman_avg[2] = (vec_cp_kalman_l[2] + vec_cp_kalman_r[2])/2.0;
 
 				//cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
-				draw_eye_gaze(pt_p_kalman_l, vec_cp_kalman_l, rect1, frame);
+				draw_eye_gaze(pt_p_kalman_l, vec_cp_kalman_l, rect1, frame);				
+				draw_eye_gaze(pt_p_kalman_r, vec_cp_kalman_r, rect2, frame);
+
 				draw_facial_normal(frame, shape, vec_ce_kalman_l);
 			}
 			win.clear_overlay();
