@@ -1202,6 +1202,7 @@ int main(int argc, char** argv) {
 				vec_ce_vel_r[1] = vec_ce_pos_r[1] - vec_ce_pos_r_old[1];
 				vec_ce_vel_r[2] = vec_ce_pos_r[2] - vec_ce_pos_r_old[2];
 
+				//std::cout<<"vel "<<vec_ce_vel_r[0] <<" "<<vec_ce_vel_r[1] <<" "<<vec_ce_vel_r[2]<<" "<<sqrt(vec_ce_vel_r[0]*vec_ce_vel_r[0] +vec_ce_vel_r[1]*vec_ce_vel_r[1]+ vec_ce_vel_r[2]*vec_ce_vel_r[2]) <<endl;
 				if(k_vec_ce_l == 0) {
 					vec_ce_pos_l_old[0] = 0;vec_ce_pos_l_old[1] = 0;vec_ce_pos_l_old[2] = 0;
 					init_kalman_ce_l(vec_ce_pos_l);

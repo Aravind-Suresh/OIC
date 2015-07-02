@@ -10,12 +10,21 @@
 #include <string>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h>
+#include <X11/keysym.h>
+
+
+#define DOWN_KEY XK_Down
+#define UP_KEY XK_Up
+#define RIGHT_KEY XK_Right
+#define LEFT_KEY XK_Left
+
 
 double PI = 3.141592653589;
 double Rn = 0.5;
 double Rm = 0.5;
 double Wf = 0.6;
 double Cf_left = 10;
+double vmax = 1.0 ;
 
 using namespace dlib;
 using namespace std;
@@ -38,6 +47,101 @@ void mouse_move(int x, int y)
 
 	XCloseDisplay(displayMain);
 }
+
+XKeyEvent createKeyEvent(Display *display, Window &win, Window &winRoot, bool press, int keycode, int modifiers)
+{
+	XKeyEvent event;
+
+	event.display     = display;
+	event.window      = win;
+	event.root        = winRoot;
+	event.subwindow   = None;
+	event.time        = CurrentTime;
+	event.x           = 1;
+	event.y           = 1;
+	event.x_root      = 1;
+	event.y_root      = 1;
+	event.same_screen = True;
+	event.keycode     = XKeysymToKeycode(display, keycode);
+	event.state       = modifiers;
+
+	if(press)
+		event.type = KeyPress;
+	else
+		event.type = KeyRelease;
+
+	return event;
+}
+
+
+void simulate_key_press(int key_code) {
+
+
+// Obtain the X11 display.
+	Display *display = XOpenDisplay(0);
+	
+
+// Get the root window for the current display.
+	Window winRoot = XDefaultRootWindow(display);
+
+// Find the window which has the current keyboard focus.
+	Window winFocus;
+	int    revert;
+	XGetInputFocus(display, &winFocus, &revert);
+
+// Send a fake key press event to the window.
+	XKeyEvent event = createKeyEvent(display, winFocus, winRoot, true, key_code, 0);
+	XSendEvent(event.display, event.window, True, KeyPressMask, (XEvent *)&event);
+
+// Send a fake key release event to the window.
+	event = createKeyEvent(display, winFocus, winRoot, false, key_code, 0);
+	XSendEvent(event.display, event.window, True, KeyPressMask, (XEvent *)&event);
+
+// Done.
+	XCloseDisplay(display);
+
+}
+
+
+void display_velocity(double vx, double vy, double vz ) {
+
+	image_window vel;
+
+	cv::Mat speedometer = cv::imread("/home/rupesh/Downloads/dlib-18.16/examples/blank_speedometer1.png", 1);
+	cv::Mat temp;
+	//cv::cvtColor(temp, temp, CV_BGR2GRAY);
+	cv_image <bgr_pixel>cvimg(speedometer);
+/*
+	double vel_abs = sqrt(vx*vx + vy*vy + vz*vz);
+	double slope_angle = (vel_abs*300.0)/vmax - 45.0;
+	cv::Point center = cv::Point(speedometer.rows/2.0, speedometer.cols/2.0);
+
+	double del_x = 20;
+	double del_y = del_x*tan(slope_angle);
+
+	cv::Point end_point = cv:: Point(speedometer.rows/2.0 + del_x , speedometer.cols/2.0 + del_y);
+
+
+	cv::Point txt_pt = cv:: Point(speedometer.rows/2.0 -20,speedometer.rows/2.0 +20 );
+
+	std::stringstream ss;
+	ss << vel_abs;
+	std::string text = ss.str();
+	int fontFace = cv::FONT_HERSHEY_SCRIPT_SIMPLEX;
+	double fontScale = 0.3;
+	int thickness = 2;
+	cv::putText(speedometer, text, txt_pt, fontFace, fontScale, cv::Scalar::all(255), thickness, 8);
+
+
+	cv::circle( speedometer, center, 5,cv::Scalar( 0, 0, 0 ), -1, 8 );
+
+	cv::line(speedometer, center, end_point, cv::Scalar (255 ,0 ,0), 3, 8, 0);*/
+
+	vel.clear_overlay();
+	vel.set_image(cvimg); 
+		
+}
+
 
 void calibrate_distance(int key, std::vector<double> vec_gaze) {
 	if(key>(calib_gaze.size() - 1) || key<0) {
@@ -810,21 +914,23 @@ void init_kalman_point_p(cv::Point pt_pos) {
 
 			cv::Rect rect1;
 
-			cv::Mat frame, temp, temp2, roi1;
+			cv::Mat frame, frame_clr, temp, temp2, roi1;
 			int k_pt_e = 0, k_pt_p = 0, k_vec_ce = 0, k_vec_cp = 0, k_vec_ep = 0;
 
 			while(!win.is_closed()) {
 				cap>>frame;
 				cv::flip(frame, frame, 1);
+				frame.copyTo(frame_clr);
 				cv::cvtColor(frame, frame, CV_BGR2GRAY);
 
-				cv_image<unsigned char> cimg(frame);
+				cv_image<unsigned char> cimg_gray(frame);
+				cv_image<bgr_pixel> cimg_clr(frame_clr);
 
-				std::vector<rectangle> faces = detector(cimg);
+				std::vector<rectangle> faces = detector(cimg_gray);
 
 				std::vector<full_object_detection> shapes;
 				for (unsigned long i = 0; i < faces.size(); ++i)
-					shapes.push_back(pose_model(cimg, faces[i]));
+					shapes.push_back(pose_model(cimg_gray, faces[i]));
 
 				if(shapes.size() == 0) {
 					std::cout<<"zero faces"<<std::endl;
@@ -872,14 +978,14 @@ void init_kalman_point_p(cv::Point pt_pos) {
 
 					rect1 = cv::boundingRect(vec_pts_left_eye);
 					cv::Rect rect2(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(shape.part(26).x(), rect1.y + rect1.height));
-					cv::rectangle(frame, rect1, cv::Scalar(255, 255, 255), 1, 8, 0);
+					cv::rectangle(frame_clr, rect1, cv::Scalar(255, 255, 255), 1, 8, 0);
 					roi1 = frame(rect1);
 
 				//TODO : Compute current values and correct values using Kalman filter
 
 					pt_e_pos = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),cv::Point(shape.part(45).x(), shape.part(45).y()));
 				//cv::Point(cv::Point((shape.part(23).x() + rect1.x + rect1.width)*0.5, shape.part(23).y()*(1.0-Wf) + Wf*(rect1.y + rect1.height)));
-					cv::circle(frame, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
+					cv::circle(frame_clr, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
 
 					pt_e_pos.x -= rect1.x;
 					pt_e_pos.y -= rect1.y;
@@ -925,12 +1031,14 @@ void init_kalman_point_p(cv::Point pt_pos) {
 					vec_ce_vel[1] = vec_ce_pos[1] - vec_ce_pos_old[1];
 					vec_ce_vel[2] = vec_ce_pos[2] - vec_ce_pos_old[2];
 
+
 					if(k_vec_ce == 0) {
 						init_kalman_ce(vec_ce_pos);
 						++k_vec_ce;
 					}
 
 					kalman_predict_correct_ce(vec_ce_pos, vec_ce_pos_old, vec_ce_kalman);
+
 					makeUnitVector(vec_ce_pos, vec_ce_pos);
 					makeUnitVector(vec_ce_kalman, vec_ce_kalman);
 					std::cout<<"Vector CE "<<vec_ce_kalman[0]<<" "<<vec_ce_kalman[1]<<" "<<vec_ce_kalman[2]<<endl;
@@ -979,16 +1087,35 @@ void init_kalman_point_p(cv::Point pt_pos) {
 				}*/
 
 				//cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
-					draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
-					draw_facial_normal(frame, shape, vec_ce_kalman);
+					draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame_clr);
+					draw_facial_normal(frame_clr, shape, vec_ce_kalman);
+					display_velocity(vec_ce_vel[0], vec_ce_vel[1], vec_ce_vel[2]);
 
 					proj_x = (-vec_cp_kalman[0]*Rd)/(vec_cp_kalman[2]) + sc_w/2.0;
 					proj_y = (-vec_cp_kalman[1]*Rd)/(vec_cp_kalman[2]) + sc_h/2.0;
 
-					mouse_move(proj_x, proj_y);
+					//mouse_move(proj_x, proj_y);
+
+					if(vec_cp_kalman[0]>0) {
+						std::cout<<endl<<"Right ";
+						simulate_key_press(RIGHT_KEY);
+					}
+					else if(vec_cp_kalman[0]<0) {
+						std::cout<<endl<<"Left ";
+						simulate_key_press(LEFT_KEY);
+					}
+
+					if(vec_cp_kalman[1]<0) {
+						std::cout<<endl<<"Up ";
+						simulate_key_press(UP_KEY);
+					}
+					else if(vec_cp_kalman[1]>0) {
+						std::cout<<endl<<"Down ";
+						simulate_key_press(DOWN_KEY);
+					}
 
 					win.clear_overlay();
-					win.set_image(cimg);
+					win.set_image(cimg_clr); 
 
 				/*std::cout<<"Waiting to calibrate"<<std::endl;
 				if(calib_gaze.size()<4) {
