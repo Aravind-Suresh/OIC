@@ -1069,8 +1069,8 @@ int main(int argc, char** argv) {
 				face_pose->assign(face_features, face_data);
 				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
 					cv::Point(shape.part(45).x(), shape.part(45).y()));
-				Cf_right = get_distance(cv::Point(shape.part(36).x(), shape.part(39).y()),
-					cv::Point(shape.part(36).x(), shape.part(39).y()));
+				Cf_right = get_distance(cv::Point(shape.part(36).x(), shape.part(36).y()),
+					cv::Point(shape.part(39).x(), shape.part(39).y()));
 
 
 				Cf_left = (Cf_left)/(14.0);
@@ -1261,9 +1261,9 @@ int main(int argc, char** argv) {
 				kalman_predict_correct_ep_l(vec_ep_pos_l, vec_ep_pos_l_old, vec_ep_kalman_l);
 				kalman_predict_correct_ep_r(vec_ep_pos_r, vec_ep_pos_r_old, vec_ep_kalman_r);
 
-				vec_cp_pos_l[0] = (13.101*Cf_left*vec_ce_pos_l[0]) + 3.0*vec_ep_pos_l[0];
-				vec_cp_pos_l[1] = (13.101*Cf_left*vec_ce_pos_l[1]) + 3.0*vec_ep_pos_l[1];
-				vec_cp_pos_l[2] = (13.101*Cf_left*vec_ce_pos_l[2]) + 3.0*vec_ep_pos_l[2];
+				vec_cp_pos_l[0] = (13.101*Cf_left*vec_ce_pos_l[0]) + vec_ep_pos_l[0];
+				vec_cp_pos_l[1] = (13.101*Cf_left*vec_ce_pos_l[1]) + vec_ep_pos_l[1];
+				vec_cp_pos_l[2] = (13.101*Cf_left*vec_ce_pos_l[2]) + vec_ep_pos_l[2];
 	
 				vec_cp_pos_r[0] = (13.101*Cf_right*vec_ce_pos_r[0]) + 3.0*vec_ep_pos_r[0];
 				vec_cp_pos_r[1] = (13.101*Cf_right*vec_ce_pos_r[1]) + 3.0*vec_ep_pos_r[1];
