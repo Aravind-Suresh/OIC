@@ -8,6 +8,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string>
+#include <X11/Xlib.h>
+#include <X11/Xutil.h>
 
 double PI = 3.141592653589;
 double Rn = 0.5;
@@ -17,6 +19,52 @@ double Cf_left = 10;
 
 using namespace dlib;
 using namespace std;
+
+//Calibration gaze keys
+int TOP_LEFT = 0, TOP_RIGHT = 1, BOTTOM_RIGHT = 2, BOTTOM_LEFT = 3;
+std::vector<std::vector<double> > calib_gaze(0);
+
+void mouse_move(int x, int y)
+{
+	Display *displayMain = XOpenDisplay(NULL);
+
+	if(displayMain == NULL)
+	{
+		std::cout<<"Can't read display";
+		exit(EXIT_FAILURE);
+	}
+
+	XWarpPointer(displayMain, None, None, 0, 0, 0, 0, x, y);
+
+	XCloseDisplay(displayMain);
+}
+
+void calibrate_distance(int key, std::vector<double> vec_gaze) {
+	if(key>(calib_gaze.size() - 1) || key<0) {
+		return;
+	}
+	else {
+		calib_gaze[key] = vec_gaze;
+	}
+}
+
+int match_gaze_vector(std::vector<double> vec_gaze) {
+	int key;
+	double score1=0, score2=0;
+	std::vector<double> temp;
+	for(int i=0;i<calib_gaze.size();i++) {
+		temp =calib_gaze[i];
+		score2 = score1;
+		score1 = 0;
+		for(int j=0;j<temp.size();j++) {
+			score1 += (temp[j] - vec_gaze[j])*(temp[j] - vec_gaze[j]);
+		}
+		if(score1 < score2) {
+			key = i;
+		}
+	}
+	return key;
+}
 
 cv::Point unscalePoint(cv::Point p, cv::Rect origSize) {
 	float ratio = (((float)(50))/origSize.width);
@@ -548,386 +596,377 @@ void init_kalman_point_p(cv::Point pt_pos) {
 	/*KF_p.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,0,     0,0,1,0,   0,0,0,1);
 	KF_p.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
 		0,0,0,0.3);*/
-	KF_p.transitionMatrix = *(cv::Mat_<float>(6,6) << 1,0,1,0,0.5,0,    0,1,0,1,0,0.5,     0,0,1,0,1,0,   0,0,0,1,0,1,  0,0,0,0,1,0,  0,0,0,0,0,1);
-	KF_p.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+		KF_p.transitionMatrix = *(cv::Mat_<float>(6,6) << 1,0,1,0,0.5,0,    0,1,0,1,0,0.5,     0,0,1,0,1,0,   0,0,0,1,0,1,  0,0,0,0,1,0,  0,0,0,0,0,1);
+		KF_p.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+			0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
 
-	cv::setIdentity(KF_p.measurementMatrix);
-	cv::setIdentity(KF_p.processNoiseCov,cv::Scalar::all(1e-4));
-	cv::setIdentity(KF_p.measurementNoiseCov,cv::Scalar::all(1e-1));
-	cv::setIdentity(KF_p.errorCovPost, cv::Scalar::all(.1)); 
-}
+		cv::setIdentity(KF_p.measurementMatrix);
+		cv::setIdentity(KF_p.processNoiseCov,cv::Scalar::all(1e-4));
+		cv::setIdentity(KF_p.measurementNoiseCov,cv::Scalar::all(1e-1));
+		cv::setIdentity(KF_p.errorCovPost, cv::Scalar::all(.1)); 
+	}
 
-cv::Point2f kalman_correct_point_p(cv::Point pt_pos, cv::Point pt_pos_old, cv::Point pt_vel_old) {
-	cv::Mat prediction = KF_p.predict();
-	cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
-	measurement_p(0) = pt_pos.x;
-	measurement_p(1) = pt_pos.y;
-	measurement_p(2) = pt_pos.x - pt_pos_old.x;
-	measurement_p(3) = pt_pos.y - pt_pos_old.y;
-	measurement_p(4) = measurement_p(2) - pt_vel_old.x;
-	measurement_p(5) = measurement_p(3) - pt_vel_old.y;
+	cv::Point2f kalman_correct_point_p(cv::Point pt_pos, cv::Point pt_pos_old, cv::Point pt_vel_old) {
+		cv::Mat prediction = KF_p.predict();
+		cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
+		measurement_p(0) = pt_pos.x;
+		measurement_p(1) = pt_pos.y;
+		measurement_p(2) = pt_pos.x - pt_pos_old.x;
+		measurement_p(3) = pt_pos.y - pt_pos_old.y;
+		measurement_p(4) = measurement_p(2) - pt_vel_old.x;
+		measurement_p(5) = measurement_p(3) - pt_vel_old.y;
 
-	cv::Mat estimated = KF_p.correct(measurement_p);
-	cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
-	return statePt;
-}
+		cv::Mat estimated = KF_p.correct(measurement_p);
+		cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
+		return statePt;
+	}
 
-cv::KalmanFilter KF_e (4,4,0);
-cv::Mat_<float> measurement_e (4,1);
+	cv::KalmanFilter KF_e (4,4,0);
+	cv::Mat_<float> measurement_e (4,1);
 
-void init_kalman_point_e(cv::Point pt_pos) {
-	KF_e.statePre.at<float>(0) = pt_pos.x;
-	KF_e.statePre.at<float>(1) = pt_pos.y;
-	KF_e.statePre.at<float>(2) = 0;
-	KF_e.statePre.at<float>(3) = 0;
+	void init_kalman_point_e(cv::Point pt_pos) {
+		KF_e.statePre.at<float>(0) = pt_pos.x;
+		KF_e.statePre.at<float>(1) = pt_pos.y;
+		KF_e.statePre.at<float>(2) = 0;
+		KF_e.statePre.at<float>(3) = 0;
 
-	KF_e.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,0,     0,0,1,0,   0,0,0,1);
-	KF_e.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3);
-	cv::setIdentity(KF_e.measurementMatrix);
-	cv::setIdentity(KF_e.processNoiseCov,cv::Scalar::all(1e-4));
-	cv::setIdentity(KF_e.measurementNoiseCov,cv::Scalar::all(1e-1));
-	cv::setIdentity(KF_e.errorCovPost, cv::Scalar::all(.1)); 
-}
+		KF_e.transitionMatrix = *(cv::Mat_<float>(4,4) << 1,0,1,0,    0,1,0,1,0,     0,0,1,0,   0,0,0,1);
+		KF_e.processNoiseCov = *(cv::Mat_<float>(4,4) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+			0,0,0,0.3);
+		cv::setIdentity(KF_e.measurementMatrix);
+		cv::setIdentity(KF_e.processNoiseCov,cv::Scalar::all(1e-4));
+		cv::setIdentity(KF_e.measurementNoiseCov,cv::Scalar::all(1e-1));
+		cv::setIdentity(KF_e.errorCovPost, cv::Scalar::all(.1)); 
+	}
 
-cv::Point2f kalman_correct_point_e(cv::Point pt_pos, cv::Point pt_pos_old) {
-	cv::Mat prediction = KF_e.predict();
-	cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
-	measurement_e(0) = pt_pos.x;
-	measurement_e(1) = pt_pos.y;
-	measurement_e(2) = pt_pos.x - pt_pos_old.x;
-	measurement_e(3) = pt_pos.y - pt_pos_old.y;
+	cv::Point2f kalman_correct_point_e(cv::Point pt_pos, cv::Point pt_pos_old) {
+		cv::Mat prediction = KF_e.predict();
+		cv::Point2f predictPt (prediction.at<float>(0), prediction.at<float>(1));   
+		measurement_e(0) = pt_pos.x;
+		measurement_e(1) = pt_pos.y;
+		measurement_e(2) = pt_pos.x - pt_pos_old.x;
+		measurement_e(3) = pt_pos.y - pt_pos_old.y;
 
-	cv::Mat estimated = KF_e.correct(measurement_e);
-	cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
-	return statePt;
-}
-
-
-cv::KalmanFilter KF_ce(6, 6, 0);
-cv::Mat_<float> measurement_ce(6,1);
-
-void init_kalman_ce(std::vector<double> vec) {
-
-	KF_ce.statePre.at<float>(0) = vec[0];
-	KF_ce.statePre.at<float>(1) = vec[1];
-	KF_ce.statePre.at<float>(2) = vec[2];
-	KF_ce.statePre.at<float>(3) = 0;
-	KF_ce.statePre.at<float>(4) = 0;
-	KF_ce.statePre.at<float>(5) = 0;
+		cv::Mat estimated = KF_e.correct(measurement_e);
+		cv::Point2f statePt (estimated.at<float>(0), estimated.at<float>(1));
+		return statePt;
+	}
 
 
-	KF_ce.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
-	KF_ce.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+	cv::KalmanFilter KF_ce(6, 6, 0);
+	cv::Mat_<float> measurement_ce(6,1);
 
-	cv::setIdentity(KF_ce.measurementMatrix);
-	cv::setIdentity(KF_ce.processNoiseCov,cv::Scalar::all(1e-4));
-	cv::setIdentity(KF_ce.measurementNoiseCov,cv::Scalar::all(1e-1));
-	cv::setIdentity(KF_ce.errorCovPost, cv::Scalar::all(.1));  
-}
+	void init_kalman_ce(std::vector<double> vec) {
 
-void kalman_predict_correct_ce(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
-	cv::Mat prediction = KF_ce.predict();
-	measurement_ce(0) = vec[0];
-	measurement_ce(1) = vec[1];
-	measurement_ce(2) = vec[2];
-	measurement_ce(3) = vec[0] - old[0];
-	measurement_ce(4) = vec[1] - old[1];
-	measurement_ce(5) = vec[2] - old[2];
-
-	cv::Mat estimated = KF_ce.correct(measurement_ce);
-	vec_pred[0] = estimated.at<float>(0);
-	vec_pred[1] = estimated.at<float>(1);
-	vec_pred[2] = estimated.at<float>(2);
-}
-
-cv::KalmanFilter KF_ep(6, 6, 0);
-cv::Mat_<float> measurement_ep(6,1);
-
-void init_kalman_ep(std::vector<double> vec) {
-
-	KF_ep.statePre.at<float>(0) = vec[0];
-	KF_ep.statePre.at<float>(1) = vec[1];
-	KF_ep.statePre.at<float>(2) = vec[2];
-	KF_ep.statePre.at<float>(3) = 0;
-	KF_ep.statePre.at<float>(4) = 0;
-	KF_ep.statePre.at<float>(5) = 0;
+		KF_ce.statePre.at<float>(0) = vec[0];
+		KF_ce.statePre.at<float>(1) = vec[1];
+		KF_ce.statePre.at<float>(2) = vec[2];
+		KF_ce.statePre.at<float>(3) = 0;
+		KF_ce.statePre.at<float>(4) = 0;
+		KF_ce.statePre.at<float>(5) = 0;
 
 
-	KF_ep.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
-	KF_ep.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+		KF_ce.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+		KF_ce.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+			0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
 
-	cv::setIdentity(KF_ep.measurementMatrix);
-	cv::setIdentity(KF_ep.processNoiseCov,cv::Scalar::all(1e-4));
-	cv::setIdentity(KF_ep.measurementNoiseCov,cv::Scalar::all(1e-1));
-	cv::setIdentity(KF_ep.errorCovPost, cv::Scalar::all(.1));  
-}
+		cv::setIdentity(KF_ce.measurementMatrix);
+		cv::setIdentity(KF_ce.processNoiseCov,cv::Scalar::all(1e-4));
+		cv::setIdentity(KF_ce.measurementNoiseCov,cv::Scalar::all(1e-1));
+		cv::setIdentity(KF_ce.errorCovPost, cv::Scalar::all(.1));  
+	}
 
-void kalman_predict_correct_ep(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
-	cv::Mat prediction = KF_ep.predict();
-	measurement_ep(0) = vec[0];
-	measurement_ep(1) = vec[1];
-	measurement_ep(2) = vec[2];
-	measurement_ep(3) = vec[0] - old[0];
-	measurement_ep(4) = vec[1] - old[1];
-	measurement_ep(5) = vec[2] - old[2];
+	void kalman_predict_correct_ce(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+		cv::Mat prediction = KF_ce.predict();
+		measurement_ce(0) = vec[0];
+		measurement_ce(1) = vec[1];
+		measurement_ce(2) = vec[2];
+		measurement_ce(3) = vec[0] - old[0];
+		measurement_ce(4) = vec[1] - old[1];
+		measurement_ce(5) = vec[2] - old[2];
 
-	cv::Mat estimated = KF_ep.correct(measurement_ep);
-	vec_pred[0] = estimated.at<float>(0);
-	vec_pred[1] = estimated.at<float>(1);
-	vec_pred[2] = estimated.at<float>(2);
-}
+		cv::Mat estimated = KF_ce.correct(measurement_ce);
+		vec_pred[0] = estimated.at<float>(0);
+		vec_pred[1] = estimated.at<float>(1);
+		vec_pred[2] = estimated.at<float>(2);
+	}
 
-cv::KalmanFilter KF_cp(6, 6, 0);
-cv::Mat_<float> measurement_cp(6,1);
+	cv::KalmanFilter KF_ep(6, 6, 0);
+	cv::Mat_<float> measurement_ep(6,1);
 
-void init_kalman_cp(std::vector<double> vec) {
+	void init_kalman_ep(std::vector<double> vec) {
 
-	KF_cp.statePre.at<float>(0) = vec[0];
-	KF_cp.statePre.at<float>(1) = vec[1];
-	KF_cp.statePre.at<float>(2) = vec[2];
-	KF_cp.statePre.at<float>(3) = 0;
-	KF_cp.statePre.at<float>(4) = 0;
-	KF_cp.statePre.at<float>(5) = 0;
+		KF_ep.statePre.at<float>(0) = vec[0];
+		KF_ep.statePre.at<float>(1) = vec[1];
+		KF_ep.statePre.at<float>(2) = vec[2];
+		KF_ep.statePre.at<float>(3) = 0;
+		KF_ep.statePre.at<float>(4) = 0;
+		KF_ep.statePre.at<float>(5) = 0;
 
 
-	KF_cp.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
-	KF_cp.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
-		0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+		KF_ep.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+		KF_ep.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+			0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
 
-	cv::setIdentity(KF_cp.measurementMatrix);
-	cv::setIdentity(KF_cp.processNoiseCov,cv::Scalar::all(1e-4));
-	cv::setIdentity(KF_cp.measurementNoiseCov,cv::Scalar::all(1e-1));
-	cv::setIdentity(KF_cp.errorCovPost, cv::Scalar::all(.1));  
-}
+		cv::setIdentity(KF_ep.measurementMatrix);
+		cv::setIdentity(KF_ep.processNoiseCov,cv::Scalar::all(1e-4));
+		cv::setIdentity(KF_ep.measurementNoiseCov,cv::Scalar::all(1e-1));
+		cv::setIdentity(KF_ep.errorCovPost, cv::Scalar::all(.1));  
+	}
 
-void kalman_predict_correct_cp(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
-	cv::Mat prediction = KF_cp.predict();
-	measurement_cp(0) = vec[0];
-	measurement_cp(1) = vec[1];
-	measurement_cp(2) = vec[2];
-	measurement_cp(3) = vec[0] - old[0];
-	measurement_cp(4) = vec[1] - old[1];
-	measurement_cp(5) = vec[2] - old[2];
+	void kalman_predict_correct_ep(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+		cv::Mat prediction = KF_ep.predict();
+		measurement_ep(0) = vec[0];
+		measurement_ep(1) = vec[1];
+		measurement_ep(2) = vec[2];
+		measurement_ep(3) = vec[0] - old[0];
+		measurement_ep(4) = vec[1] - old[1];
+		measurement_ep(5) = vec[2] - old[2];
 
-	cv::Mat estimated = KF_cp.correct(measurement_cp);
-	vec_pred[0] = estimated.at<float>(0);
-	vec_pred[1] = estimated.at<float>(1);
-	vec_pred[2] = estimated.at<float>(2);
-}
+		cv::Mat estimated = KF_ep.correct(measurement_ep);
+		vec_pred[0] = estimated.at<float>(0);
+		vec_pred[1] = estimated.at<float>(1);
+		vec_pred[2] = estimated.at<float>(2);
+	}
 
-void retrace_eye_center(cv::Point& pt_e_pos, double normal[3], double mag) {
-	pt_e_pos.x = pt_e_pos.x - normal[0]*mag;
-	pt_e_pos.y = pt_e_pos.y - normal[1]*mag;
-}
+	cv::KalmanFilter KF_cp(6, 6, 0);
+	cv::Mat_<float> measurement_cp(6,1);
 
-int main(int argc, char** argv) {
-	try	{
-		Rm = std::atoi(argv[1])/100.0;
-		Rn = std::atoi(argv[2])/100.0;
+	void init_kalman_cp(std::vector<double> vec) {
 
+		KF_cp.statePre.at<float>(0) = vec[0];
+		KF_cp.statePre.at<float>(1) = vec[1];
+		KF_cp.statePre.at<float>(2) = vec[2];
+		KF_cp.statePre.at<float>(3) = 0;
+		KF_cp.statePre.at<float>(4) = 0;
+		KF_cp.statePre.at<float>(5) = 0;
+
+
+		KF_cp.transitionMatrix = *(cv::Mat_<float>(6, 6) << 1,0,0,1,0,0, 0,1,0,0,1,0, 0,0,1,0,0,1, 0,0,0,1,0,0, 0,0,0,0,1,0, 0,0,0,0,0,1);
+		KF_cp.processNoiseCov = *(cv::Mat_<float>(6,6) << 0.2,0,0.2,0,  0,0.2,0,0.2,  0,0,0.3,0,   
+			0,0,0,0.3, 0.2,0,0.2,0,  0,0.2,0,0.2);
+
+		cv::setIdentity(KF_cp.measurementMatrix);
+		cv::setIdentity(KF_cp.processNoiseCov,cv::Scalar::all(1e-4));
+		cv::setIdentity(KF_cp.measurementNoiseCov,cv::Scalar::all(1e-1));
+		cv::setIdentity(KF_cp.errorCovPost, cv::Scalar::all(.1));  
+	}
+
+	void kalman_predict_correct_cp(std::vector<double> vec, std::vector<double> old, std::vector<double>& vec_pred) {
+		cv::Mat prediction = KF_cp.predict();
+		measurement_cp(0) = vec[0];
+		measurement_cp(1) = vec[1];
+		measurement_cp(2) = vec[2];
+		measurement_cp(3) = vec[0] - old[0];
+		measurement_cp(4) = vec[1] - old[1];
+		measurement_cp(5) = vec[2] - old[2];
+
+		cv::Mat estimated = KF_cp.correct(measurement_cp);
+		vec_pred[0] = estimated.at<float>(0);
+		vec_pred[1] = estimated.at<float>(1);
+		vec_pred[2] = estimated.at<float>(2);
+	}
+
+	int main(int argc, char** argv) {
+		try	{
+			Rm = std::atoi(argv[1])/100.0;
+			Rn = std::atoi(argv[2])/100.0;
+			double Rd = atoi(argv[3]);
+			double proj_x, proj_y;
+			double sc_w, sc_h;
 		//Wf = std::atoi(argv[3])/100.0;
 
 		//Nf = std::atoi(argv[3])/100.0;
-		std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<endl;
+			std::cout<<"Rm : "<<Rm<<" Rn : "<<Rn<<endl;
 
-		cv::VideoCapture cap(0);
-		image_window win;
+			cv::VideoCapture cap(0);
+			image_window win;
 
-		FaceFeatures *face_features = new FaceFeatures();
-		FaceData *face_data = new FaceData();
-		FacePose *face_pose = new FacePose();
+			FaceFeatures *face_features = new FaceFeatures();
+			FaceData *face_data = new FaceData();
+			FacePose *face_pose = new FacePose();
 
-		frontal_face_detector detector = get_frontal_face_detector();
-		shape_predictor pose_model;
-		deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
+			frontal_face_detector detector = get_frontal_face_detector();
+			shape_predictor pose_model;
+			deserialize("shape_predictor_68_face_landmarks.dat") >> pose_model;
 
-		std::vector<double> vec_ce_pos(3), vec_ce_vel(3), vec_ce_pos_old(3), vec_ce_vel_old(3), vec_ce_kalman(3);
-		std::vector<double> vec_ep_pos(3), vec_ep_vel(3), vec_ep_pos_old(3), vec_ep_vel_old(3), vec_ep_kalman(3);
-		std::vector<double> vec_cp_pos(3), vec_cp_vel(3), vec_cp_pos_old(3), vec_cp_vel_old(3), vec_cp_kalman(3);
-
-		std::vector<double> center_eye_proj(3);
+			std::vector<double> vec_ce_pos(3), vec_ce_vel(3), vec_ce_pos_old(3), vec_ce_vel_old(3), vec_ce_kalman(3);
+			std::vector<double> vec_ep_pos(3), vec_ep_vel(3), vec_ep_pos_old(3), vec_ep_vel_old(3), vec_ep_kalman(3);
+			std::vector<double> vec_cp_pos(3), vec_cp_vel(3), vec_cp_pos_old(3), vec_cp_vel_old(3), vec_cp_kalman(3);
 
 		//TODO : Initialize all vectors to [0, 0, 0];
 
-		vec_ce_pos[0] = 0;vec_ce_pos[1] = 0;vec_ce_pos[2] = 0;
-		vec_ce_pos_old[0] = 0;vec_ce_pos_old[1] = 0;vec_ce_pos_old[2] = 0;
+			vec_ce_pos[0] = 0;vec_ce_pos[1] = 0;vec_ce_pos[2] = 0;
+			vec_ce_pos_old[0] = 0;vec_ce_pos_old[1] = 0;vec_ce_pos_old[2] = 0;
 
-		vec_ep_pos[0] = 0;vec_ep_pos[1] = 0;vec_ep_pos[2] = 0;
-		vec_ep_pos_old[0] = 0;vec_ep_pos_old[1] = 0;vec_ep_pos_old[2] = 0;
+			vec_ep_pos[0] = 0;vec_ep_pos[1] = 0;vec_ep_pos[2] = 0;
+			vec_ep_pos_old[0] = 0;vec_ep_pos_old[1] = 0;vec_ep_pos_old[2] = 0;
 
-		vec_cp_pos[0] = 0;vec_cp_pos[1] = 0;vec_cp_pos[2] = 0;
-		vec_cp_pos_old[0] = 0;vec_cp_pos_old[1] = 0;vec_cp_pos_old[2] = 0;
+			vec_cp_pos[0] = 0;vec_cp_pos[1] = 0;vec_cp_pos[2] = 0;
+			vec_cp_pos_old[0] = 0;vec_cp_pos_old[1] = 0;vec_cp_pos_old[2] = 0;
 
-		cv::Point pt_p_pos(0,0), pt_p_vel(0,0), pt_p_pos_old(0,0), pt_p_kalman(0,0), pt_p_vel_old(0,0);
-		cv::Point pt_e_pos(0,0), pt_e_vel(0,0), pt_e_pos_old(0,0), pt_e_kalman(0,0);
+			cv::Point pt_p_pos(0,0), pt_p_vel(0,0), pt_p_pos_old(0,0), pt_p_kalman(0,0), pt_p_vel_old(0,0);
+			cv::Point pt_e_pos(0,0), pt_e_vel(0,0), pt_e_pos_old(0,0), pt_e_kalman(0,0);
 
-		cv::Rect rect1;
+			cv::Rect rect1;
 
-		cv::Mat frame, temp, temp2, roi1;
-		int k_pt_e = 0, k_pt_p = 0, k_vec_ce = 0, k_vec_cp = 0, k_vec_ep = 0;
+			cv::Mat frame, temp, temp2, roi1;
+			int k_pt_e = 0, k_pt_p = 0, k_vec_ce = 0, k_vec_cp = 0, k_vec_ep = 0;
 
-		while(!win.is_closed()) {
-			cap>>frame;
-			cv::flip(frame, frame, 1);
-			cv::cvtColor(frame, frame, CV_BGR2GRAY);
+			while(!win.is_closed()) {
+				cap>>frame;
+				cv::flip(frame, frame, 1);
+				cv::cvtColor(frame, frame, CV_BGR2GRAY);
 
-			cv_image<unsigned char> cimg(frame);
+				cv_image<unsigned char> cimg(frame);
 
-			std::vector<rectangle> faces = detector(cimg);
+				std::vector<rectangle> faces = detector(cimg);
 
-			std::vector<full_object_detection> shapes;
-			for (unsigned long i = 0; i < faces.size(); ++i)
-				shapes.push_back(pose_model(cimg, faces[i]));
+				std::vector<full_object_detection> shapes;
+				for (unsigned long i = 0; i < faces.size(); ++i)
+					shapes.push_back(pose_model(cimg, faces[i]));
 
-			if(shapes.size() == 0) {
-				std::cout<<"zero faces"<<std::endl;
-			}
-			else {
+				if(shapes.size() == 0) {
+					std::cout<<"zero faces"<<std::endl;
+				}
+				else {
 
 				//TODO : Initialize the variables used in the Kalman filter
 
-				pt_p_pos_old = pt_p_pos;
-				pt_p_vel_old = pt_p_vel;
-				pt_e_pos_old = pt_e_pos;
+					pt_p_pos_old = pt_p_pos;
+					pt_p_vel_old = pt_p_vel;
+					pt_e_pos_old = pt_e_pos;
 
-				vec_ce_pos_old = vec_ce_pos;
-				vec_ep_pos_old = vec_ep_pos;
-				vec_cp_pos_old = vec_cp_pos;
+					vec_ce_pos_old = vec_ce_pos;
+					vec_ep_pos_old = vec_ep_pos;
+					vec_cp_pos_old = vec_cp_pos;
 
-				dlib::full_object_detection shape = shapes[0];
+					dlib::full_object_detection shape = shapes[0];
 
-				face_features->assign(cv::Point(0,0),
-					get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),
-						cv::Point(shape.part(45).x(), shape.part(45).y())),
-					get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()),
-						cv::Point(shape.part(39).x(), shape.part(39).y())),
-					cv::Point(shape.part(30).x(), shape.part(30).y()), 
-					get_mid_point(cv::Point(shape.part(48).x(), shape.part(48).y()),
-						cv::Point(shape.part(54).x(), shape.part(54).y())));
+					face_features->assign(cv::Point(0,0),
+						get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),
+							cv::Point(shape.part(45).x(), shape.part(45).y())),
+						get_mid_point(cv::Point(shape.part(36).x(), shape.part(36).y()),
+							cv::Point(shape.part(39).x(), shape.part(39).y())),
+						cv::Point(shape.part(30).x(), shape.part(30).y()), 
+						get_mid_point(cv::Point(shape.part(48).x(), shape.part(48).y()),
+							cv::Point(shape.part(54).x(), shape.part(54).y())));
 
-				face_data->assign(face_features);
+					face_data->assign(face_features);
 
-				face_pose->assign(face_features, face_data);
-				Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
-					cv::Point(shape.part(45).x(), shape.part(45).y()));
+					face_pose->assign(face_features, face_data);
+					Cf_left = get_distance(cv::Point(shape.part(42).x(), shape.part(42).y()),
+						cv::Point(shape.part(45).x(), shape.part(45).y()));
 
-				Cf_left = (12.5*Cf_left)/(14.0);
+					Cf_left = (12.5*Cf_left)/(14.0);
 
-				std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
+					std::vector<cv::Point> vec_pts_left_eye(0), vec_pts_right_eye(0);
 
-				for(int j=42;j<=47;j++) {
-					vec_pts_left_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
-				}
+					for(int j=42;j<=47;j++) {
+						vec_pts_left_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
+					}
 
-				for(int j=36;j<=41;j++) {
-					vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
-				}
+					for(int j=36;j<=41;j++) {
+						vec_pts_right_eye.push_back(cv::Point(shape.part(j).x(), shape.part(j).y()));
+					}
 
-				rect1 = cv::boundingRect(vec_pts_left_eye);
-				cv::Rect rect2(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(shape.part(26).x(), rect1.y + rect1.height));
-				cv::rectangle(frame, rect1, cv::Scalar(255, 255, 255), 1, 8, 0);
-				roi1 = frame(rect1);
+					rect1 = cv::boundingRect(vec_pts_left_eye);
+					cv::Rect rect2(cv::Point(shape.part(22).x(), shape.part(22).y()), cv::Point(shape.part(26).x(), rect1.y + rect1.height));
+					cv::rectangle(frame, rect1, cv::Scalar(255, 255, 255), 1, 8, 0);
+					roi1 = frame(rect1);
 
 				//TODO : Compute current values and correct values using Kalman filter
 
-				pt_e_pos = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),cv::Point(shape.part(45).x(), shape.part(45).y()));
+					pt_e_pos = get_mid_point(cv::Point(shape.part(42).x(), shape.part(42).y()),cv::Point(shape.part(45).x(), shape.part(45).y()));
 				//cv::Point(cv::Point((shape.part(23).x() + rect1.x + rect1.width)*0.5, shape.part(23).y()*(1.0-Wf) + Wf*(rect1.y + rect1.height)));
-				cv::circle(frame, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
+					cv::circle(frame, pt_e_pos, 1, cv::Scalar(255,0,0), 1, 4, 0);
 
-				retrace_eye_center(pt_e_pos, face_pose->normal, Cf_left);
-				cv::circle(frame, pt_e_pos, 1, cv::Scalar(127,0,0), 1, 4, 0);
+					pt_e_pos.x -= rect1.x;
+					pt_e_pos.y -= rect1.y;
+					pt_e_vel.x = pt_e_pos.x - pt_e_pos_old.x;
+					pt_e_vel.y = pt_e_pos.y - pt_e_pos_old.y;
 
-				pt_e_pos.x -= rect1.x;
-				pt_e_pos.y -= rect1.y;
-				pt_e_vel.x = pt_e_pos.x - pt_e_pos_old.x;
-				pt_e_vel.y = pt_e_pos.y - pt_e_pos_old.y;
+					if(k_pt_e == 0) {
+						init_kalman_point_e(pt_e_pos);
+						++k_pt_e;
+					}
 
-				if(k_pt_e == 0) {
-					init_kalman_point_e(pt_e_pos);
-					++k_pt_e;
-				}
+					pt_e_kalman = kalman_correct_point_e(pt_e_pos, pt_e_pos_old);
 
-				pt_e_kalman = kalman_correct_point_e(pt_e_pos, pt_e_pos_old);
-				
-				std::cout<<"Point E "<<pt_e_kalman.x<<" "<<pt_e_kalman.y<<endl;
+					std::cout<<"Point E "<<pt_e_kalman.x<<" "<<pt_e_kalman.y<<endl;
 
 
-				pt_p_pos = findEyeCenter(roi1, rect1, "");
-				pt_p_vel.x = pt_p_pos.x - pt_p_pos_old.x;
-				pt_p_vel.y = pt_p_pos.y - pt_p_pos_old.y;
+					pt_p_pos = findEyeCenter(roi1, rect1, "");
+					pt_p_vel.x = pt_p_pos.x - pt_p_pos_old.x;
+					pt_p_vel.y = pt_p_pos.y - pt_p_pos_old.y;
 
-				if(k_pt_p == 0) {
-					init_kalman_point_p(pt_p_pos);
-					++k_pt_p;
-				}
+					if(k_pt_p == 0) {
+						init_kalman_point_p(pt_p_pos);
+						++k_pt_p;
+					}
 
-				pt_p_kalman = kalman_correct_point_p(pt_p_pos, pt_p_pos_old, pt_p_vel);
-
-
-				if(!floodShouldPushPoint(pt_p_kalman, roi1)) {
-					k_pt_p=0;
-					k_pt_e=0;
-					k_vec_ce=0;
-					k_vec_ep=0;
-				}
-
-				std::cout<<"Point P "<<pt_p_kalman.x<<" "<<pt_p_kalman.y<<endl;
-
-				vec_ce_pos[0] = face_pose->normal[0];
-				vec_ce_pos[1] = face_pose->normal[1];
-				vec_ce_pos[2] = face_pose->normal[2];
-
-				vec_ce_vel[0] = vec_ce_pos[0] - vec_ce_pos_old[0];
-				vec_ce_vel[1] = vec_ce_pos[1] - vec_ce_pos_old[1];
-				vec_ce_vel[2] = vec_ce_pos[2] - vec_ce_pos_old[2];
-
-				if(k_vec_ce == 0) {
-					init_kalman_ce(vec_ce_pos);
-					++k_vec_ce;
-				}
-
-				kalman_predict_correct_ce(vec_ce_pos, vec_ce_pos_old, vec_ce_kalman);
-				makeUnitVector(vec_ce_pos, vec_ce_pos);
-				makeUnitVector(vec_ce_kalman, vec_ce_kalman);
-				std::cout<<"Vector CE "<<vec_ce_kalman[0]<<" "<<vec_ce_kalman[1]<<" "<<vec_ce_kalman[2]<<endl;
+					pt_p_kalman = kalman_correct_point_p(pt_p_pos, pt_p_pos_old, pt_p_vel);
 
 
-				vec_ep_pos[0] = pt_p_kalman.x - pt_e_kalman.x;
-				vec_ep_pos[1] = pt_p_kalman.y - pt_e_kalman.y;
-				vec_ep_pos[2] = 0;
+					if(!floodShouldPushPoint(pt_p_kalman, roi1)) {
+						k_pt_p=0;
+						k_pt_e=0;
+						k_vec_ce=0;
+						k_vec_ep=0;
+					}
 
-				vec_ep_pos[0] = pt_p_pos.x - pt_e_pos.x;
-				vec_ep_pos[1] = pt_p_pos.y - pt_e_pos.y;
-				vec_ep_pos[2] = 0.0;
+					std::cout<<"Point P "<<pt_p_kalman.x<<" "<<pt_p_kalman.y<<endl;
 
-				if(k_vec_ep == 0) {
-					init_kalman_ep(vec_ep_pos);
-					++k_vec_ep;
-				}
-				kalman_predict_correct_ep(vec_ep_pos, vec_ep_pos_old, vec_ep_kalman);
+					vec_ce_pos[0] = face_pose->normal[0];
+					vec_ce_pos[1] = face_pose->normal[1];
+					vec_ce_pos[2] = face_pose->normal[2];
 
-				vec_cp_pos[0] = (Cf_left*vec_ce_pos[0]) + vec_ep_pos[0];
-				vec_cp_pos[1] = (Cf_left*vec_ce_pos[1]) + vec_ep_pos[1];
-				vec_cp_pos[2] = (Cf_left*vec_ce_pos[2]) + vec_ep_pos[2];
-				
-				vec_cp_vel[0] = vec_cp_pos[0] - vec_cp_pos_old[0];
-				vec_cp_vel[1] = vec_cp_pos[1] - vec_cp_pos_old[1];
-				vec_cp_vel[2] = vec_cp_pos[2] - vec_cp_pos_old[2];
+					vec_ce_vel[0] = vec_ce_pos[0] - vec_ce_pos_old[0];
+					vec_ce_vel[1] = vec_ce_pos[1] - vec_ce_pos_old[1];
+					vec_ce_vel[2] = vec_ce_pos[2] - vec_ce_pos_old[2];
 
-				if(k_vec_cp == 0) {
-					init_kalman_cp(vec_cp_pos);
-					++k_vec_cp;
-				}
-				//heyy
+					if(k_vec_ce == 0) {
+						init_kalman_ce(vec_ce_pos);
+						++k_vec_ce;
+					}
 
-				kalman_predict_correct_cp(vec_cp_pos, vec_cp_pos_old, vec_cp_kalman);
-				makeUnitVector(vec_cp_kalman, vec_cp_kalman);
+					kalman_predict_correct_ce(vec_ce_pos, vec_ce_pos_old, vec_ce_kalman);
+					makeUnitVector(vec_ce_pos, vec_ce_pos);
+					makeUnitVector(vec_ce_kalman, vec_ce_kalman);
+					std::cout<<"Vector CE "<<vec_ce_kalman[0]<<" "<<vec_ce_kalman[1]<<" "<<vec_ce_kalman[2]<<endl;
 
-				std::cout<<"Vector CP "<<vec_cp_kalman[0]<<" "<<vec_cp_kalman[1]<<" "<<vec_cp_kalman[2]<<endl;
+
+					vec_ep_pos[0] = pt_p_kalman.x - pt_e_kalman.x;
+					vec_ep_pos[1] = pt_p_kalman.y - pt_e_kalman.y;
+					vec_ep_pos[2] = 0;
+
+					vec_ep_pos[0] = pt_p_pos.x - pt_e_pos.x;
+					vec_ep_pos[1] = pt_p_pos.y - pt_e_pos.y;
+					vec_ep_pos[2] = 0.0;
+
+					if(k_vec_ep == 0) {
+						init_kalman_ep(vec_ep_pos);
+						++k_vec_ep;
+					}
+					kalman_predict_correct_ep(vec_ep_pos, vec_ep_pos_old, vec_ep_kalman);
+
+					vec_cp_pos[0] = (Cf_left*vec_ce_pos[0]) + vec_ep_pos[0];
+					vec_cp_pos[1] = (Cf_left*vec_ce_pos[1]) + vec_ep_pos[1];
+					vec_cp_pos[2] = (Cf_left*vec_ce_pos[2]) + vec_ep_pos[2];
+
+					vec_cp_vel[0] = vec_cp_pos[0] - vec_cp_pos_old[0];
+					vec_cp_vel[1] = vec_cp_pos[1] - vec_cp_pos_old[1];
+					vec_cp_vel[2] = vec_cp_pos[2] - vec_cp_pos_old[2];
+
+					if(k_vec_cp == 0) {
+						init_kalman_cp(vec_cp_pos);
+						++k_vec_cp;
+					}
+
+					kalman_predict_correct_cp(vec_cp_pos, vec_cp_pos_old, vec_cp_kalman);
+					makeUnitVector(vec_cp_kalman, vec_cp_kalman);
+
+					std::cout<<"Vector CP "<<vec_cp_kalman[0]<<" "<<vec_cp_kalman[1]<<" "<<vec_cp_kalman[2]<<endl;
 /*
 				vec_cp_kalman[0] = vec_ce_kalman[0] + vec_ep_kalman[0];
 				vec_cp_kalman[1] = vec_ce_kalman[1] + vec_ep_kalman[1];
@@ -940,21 +979,39 @@ int main(int argc, char** argv) {
 				}*/
 
 				//cv::circle(roi1, pt_p_kalman, 1, cv::Scalar(255,255,0), 1, 4, 0);
-				draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
-				draw_facial_normal(frame, shape, vec_ce_kalman);
-			}
-			win.clear_overlay();
-			win.set_image(cimg);
+					draw_eye_gaze(pt_p_kalman, vec_cp_kalman, rect1, frame);
+					draw_facial_normal(frame, shape, vec_ce_kalman);
+
+					proj_x = (-vec_cp_kalman[0]*Rd)/(vec_cp_kalman[2]) + sc_w/2.0;
+					proj_y = (-vec_cp_kalman[1]*Rd)/(vec_cp_kalman[2]) + sc_h/2.0;
+
+					mouse_move(proj_x, proj_y);
+
+					win.clear_overlay();
+					win.set_image(cimg);
+
+				/*std::cout<<"Waiting to calibrate"<<std::endl;
+				if(calib_gaze.size()<4) {
+					if(cin.get() == '\n') {
+						calib_gaze.push_back(vec_ce_kalman);
+					}
+				}
+				else {
+					int matched_key = match_gaze_vector(vec_ce_kalman);
+					std::cout<<"Matched with : "<<matched_key<<std::endl;
+				}*/
+
+				}
 			//win.add_overlay(render_face_detections(shapes));
+			}
+		}
+		catch(serialization_error& e) {
+			cout << "You need dlib's default face landmarking model file to run this example." << endl;
+			cout << "You can get it from the following URL: " << endl;
+			cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
+			cout << endl << e.what() << endl;
+		}
+		catch(exception& e) {
+			cout << e.what() << endl;
 		}
 	}
-	catch(serialization_error& e) {
-		cout << "You need dlib's default face landmarking model file to run this example." << endl;
-		cout << "You can get it from the following URL: " << endl;
-		cout << "   http://sourceforge.net/projects/dclib/files/dlib/v18.10/shape_predictor_68_face_landmarks.dat.bz2" << endl;
-		cout << endl << e.what() << endl;
-	}
-	catch(exception& e) {
-		cout << e.what() << endl;
-	}
-}
