@@ -102,27 +102,25 @@ void simulate_key_press(int key_code) {
 
 }
 
+image_window vel;
 
 void display_velocity(double vx, double vy, double vz ) {
 
-	image_window vel;
+	
 
 	cv::Mat speedometer = cv::imread("/home/rupesh/Downloads/dlib-18.16/examples/blank_speedometer1.png", 1);
-	cv::Mat temp;
-	//cv::cvtColor(temp, temp, CV_BGR2GRAY);
-	cv_image <bgr_pixel>cvimg(speedometer);
-/*
+	
 	double vel_abs = sqrt(vx*vx + vy*vy + vz*vz);
 	double slope_angle = (vel_abs*300.0)/vmax - 45.0;
 	cv::Point center = cv::Point(speedometer.rows/2.0, speedometer.cols/2.0);
 
-	double del_x = 20;
-	double del_y = del_x*tan(slope_angle);
+	double del_x = 40;
+	double del_y = del_x*tan(slope_angle*PI/180.0);
 
 	cv::Point end_point = cv:: Point(speedometer.rows/2.0 + del_x , speedometer.cols/2.0 + del_y);
 
 
-	cv::Point txt_pt = cv:: Point(speedometer.rows/2.0 -20,speedometer.rows/2.0 +20 );
+	cv::Point txt_pt = cv:: Point(speedometer.rows/2.0 -20,speedometer.rows/2.0 +40 );
 
 	std::stringstream ss;
 	ss << vel_abs;
@@ -135,10 +133,11 @@ void display_velocity(double vx, double vy, double vz ) {
 
 	cv::circle( speedometer, center, 5,cv::Scalar( 0, 0, 0 ), -1, 8 );
 
-	cv::line(speedometer, center, end_point, cv::Scalar (255 ,0 ,0), 3, 8, 0);*/
+	cv::line(speedometer, center, end_point, cv::Scalar (255 ,0 ,0), 3, 8, 0);
 
 	vel.clear_overlay();
-	vel.set_image(cvimg); 
+	vel.set_image(cv_image <bgr_pixel>(speedometer));
+ 
 		
 }
 
@@ -1058,9 +1057,9 @@ void init_kalman_point_p(cv::Point pt_pos) {
 					}
 					kalman_predict_correct_ep(vec_ep_pos, vec_ep_pos_old, vec_ep_kalman);
 
-					vec_cp_pos[0] = (Cf_left*vec_ce_pos[0]) + vec_ep_pos[0];
-					vec_cp_pos[1] = (Cf_left*vec_ce_pos[1]) + vec_ep_pos[1];
-					vec_cp_pos[2] = (Cf_left*vec_ce_pos[2]) + vec_ep_pos[2];
+					vec_cp_pos[0] = (Cf_left*vec_ce_pos[0]) + 3*vec_ep_pos[0];
+					vec_cp_pos[1] = (Cf_left*vec_ce_pos[1]) + 3*vec_ep_pos[1];
+					vec_cp_pos[2] = (Cf_left*vec_ce_pos[2]) + 3*vec_ep_pos[2];
 
 					vec_cp_vel[0] = vec_cp_pos[0] - vec_cp_pos_old[0];
 					vec_cp_vel[1] = vec_cp_pos[1] - vec_cp_pos_old[1];
@@ -1095,7 +1094,7 @@ void init_kalman_point_p(cv::Point pt_pos) {
 					proj_y = (-vec_cp_kalman[1]*Rd)/(vec_cp_kalman[2]) + sc_h/2.0;
 
 					//mouse_move(proj_x, proj_y);
-
+/*
 					if(vec_cp_kalman[0]>0) {
 						std::cout<<endl<<"Right ";
 						simulate_key_press(RIGHT_KEY);
@@ -1113,7 +1112,7 @@ void init_kalman_point_p(cv::Point pt_pos) {
 						std::cout<<endl<<"Down ";
 						simulate_key_press(DOWN_KEY);
 					}
-
+*/
 					win.clear_overlay();
 					win.set_image(cimg_clr); 
 
